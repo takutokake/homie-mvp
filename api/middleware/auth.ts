@@ -1,13 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
-import { verifyJwt } from '../lib/jwt.js';
+import { supabaseAdmin } from '../lib/supabase.js';
 import { prisma } from '../lib/prisma.js';
 
 export interface AuthenticatedRequest extends Request {
-  user?: {
-    id: string;
-    email: string;
-    username: string;
-  };
+  userId?: string;
+  user?: any;
 }
 
 export async function authenticateToken(req: AuthenticatedRequest, res: Response, next: NextFunction) {
@@ -15,29 +12,34 @@ export async function authenticateToken(req: AuthenticatedRequest, res: Response
   const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
   if (!token) {
-    return res.status(401).json({ error: 'Access token required' });
+    return res.status(401).json({ error: 'access_token_required' });
   }
 
-  const payload = verifyJwt(token);
-  if (!payload) {
-    return res.status(401).json({ error: 'Invalid or expired token' });
+  try {
+    // Verify the Supabase JWT token
+    const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
+    
+    if (error || !user) {
+      return res.status(401).json({ error: 'invalid_token' });
+    }
+
+    // Check if user exists in our database and is active
+    const dbUser = await prisma.user.findFirst({
+      where: {
+        email: user.email,
+        isActive: true
+      }
+    });
+
+    if (!dbUser) {
+      return res.status(401).json({ error: 'user_not_found' });
+    }
+
+    req.userId = dbUser.id;
+    req.user = user;
+    next();
+  } catch (error) {
+    console.error('Token verification error:', error);
+    return res.status(401).json({ error: 'invalid_token' });
   }
-
-  // Check if session is still valid (not revoked)
-  const session = await prisma.session.findUnique({
-    where: { jwtId: payload.jti },
-    include: { user: true },
-  });
-
-  if (!session || session.revokedAt) {
-    return res.status(401).json({ error: 'Session revoked or invalid' });
-  }
-
-  req.user = {
-    id: session.user.id,
-    email: session.user.email,
-    username: session.user.username,
-  };
-
-  next();
 }

@@ -131,6 +131,127 @@ router.post('/signup', signupLimit, async (req, res) => {
   }
 });
 
+router.post('/login', signupLimit, async (req, res) => {
+  try {
+    const { email, password } = signupSchema.parse(req.body);
+
+    const user = await prisma.user.findUnique({
+      where: { email }
+    });
+
+    if (!user || !user.passwordHash) {
+      return res.status(401).json({ error: 'invalid_credentials' });
+    }
+
+    const isValidPassword = await bcrypt.compare(password, user.passwordHash);
+    if (!isValidPassword) {
+      return res.status(401).json({ error: 'invalid_credentials' });
+    }
+
+    // Create new session
+    const { token, jti } = signJwt(user.id);
+    await prisma.session.create({
+      data: {
+        userId: user.id,
+        jwtId: jti
+      }
+    });
+
+    res.json({
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username
+      }
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    return res.status(500).json({ error: 'login_failed' });
+  }
+});
+
+router.get('/google', (req, res, next) => {
+  // Store invite code in session if provided
+  const inviteCode = req.query.invite as string;
+  if (inviteCode && /^[A-Z0-9]{6}$/.test(inviteCode)) {
+    req.session.inviteCode = inviteCode.toUpperCase();
+  }
+  
+  passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
+});
+
+router.get('/google/callback', 
+  passport.authenticate('google', { session: false }),
+  async (req, res) => {
+    try {
+      const googleUser = req.user as any;
+      
+      if (!googleUser.isNewUser) {
+        // Existing user - create session and redirect
+        const { token, jti } = signJwt(googleUser.id);
+        await prisma.session.create({
+          data: {
+            userId: googleUser.id,
+            jwtId: jti
+          }
+        });
+        
+        return res.redirect(`/web/?token=${token}`);
+      }
+
+      // New user - need invite code and profile completion
+      const inviteCode = req.session.inviteCode;
+      if (!inviteCode) {
+        return res.redirect('/web/signup.html?error=invite_required');
+      }
+
+      await prisma.$transaction(async (tx) => {
+        // Verify invite
+        const invite = await tx.invite.findUnique({
+          where: { code: inviteCode }
+        });
+        if (!invite || !invite.isActive || (invite.expiresAt && invite.expiresAt < new Date()) || invite.usedCount >= invite.maxUses) {
+          throw new Error('invalid_invite');
+        }
+        
+        // Create user with minimal profile (needs completion)
+        const user = await tx.user.create({
+          data: {
+            email: googleUser.email,
+            username: googleUser.email.split('@')[0],
+            googleId: googleUser.googleId,
+            displayName: googleUser.email.split('@')[0], // Temporary display name
+            profileCompleted: false, // Requires profile completion
+            lastLogin: new Date()
+          }
+        });
+        
+        await tx.invite.update({
+          where: { code: inviteCode },
+          data: { usedCount: { increment: 1 } }
+        });
+        
+        const { token, jti } = signJwt(user.id);
+        await tx.session.create({
+          data: { userId: user.id, jwtId: jti }
+        });
+        
+        delete req.session.inviteCode;
+        
+        // Redirect to profile completion page
+        res.redirect(`/web/complete-profile.html?token=${token}`);
+      });
+    } catch (error: any) {
+      console.error('Google OAuth callback error:', error);
+      if (error.message === 'invalid_invite') {
+        return res.redirect('/web/signup.html?error=invalid_invite');
+      }
+      return res.redirect('/web/signup.html?error=oauth_failed');
+    }
+  }
+);
+
 // Get current user profile
 router.get('/me', authenticateToken, async (req: AuthenticatedRequest, res) => {
   try {
@@ -159,7 +280,6 @@ router.get('/me', authenticateToken, async (req: AuthenticatedRequest, res) => {
   }
 });
 
-// Handle OAuth callback and create user profile
 router.post('/oauth-callback', async (req, res) => {
   try {
     const { user: authUser, code } = req.body;
@@ -248,6 +368,11 @@ router.post('/oauth-callback', async (req, res) => {
   }
 });
 
+// Logout (handled by Supabase on frontend)
+router.post('/logout', (req, res) => {
+  res.json({ message: 'Logout handled by Supabase client' });
+});
+
 // Complete profile for OAuth users
 router.post('/complete-profile', authenticateToken, async (req: AuthenticatedRequest, res) => {
   try {
@@ -289,11 +414,6 @@ router.post('/complete-profile', authenticateToken, async (req: AuthenticatedReq
     console.error('Complete profile error:', error);
     return res.status(500).json({ error: 'profile_completion_failed' });
   }
-});
-
-// Logout (handled by Supabase on frontend)
-router.post('/logout', (req, res) => {
-  res.json({ message: 'Logout handled by Supabase client' });
 });
 
 export default router;

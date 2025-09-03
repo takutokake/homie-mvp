@@ -252,11 +252,28 @@ Already have an account?
 </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const inviteInput = document.getElementById('invite');
 const verifyBtn = document.getElementById('verify-btn');
 const submitBtn = document.getElementById('submit-btn');
 const hint = document.getElementById('invite-hint');
+
+// Initialize Supabase
+let supabase;
+
+// Get Supabase config from backend
+async function initSupabase() {
+  try {
+    const response = await fetch('/api/auth/config');
+    const config = await response.json();
+    supabase = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
+  } catch (error) {
+    console.error('Failed to initialize Supabase:', error);
+  }
+}
+
+initSupabase();
 
 verifyBtn.addEventListener('click', async () => {
   const code = inviteInput.value.trim();
@@ -296,9 +313,14 @@ verifyBtn.addEventListener('click', async () => {
   verifyBtn.disabled = false;
 });
 
-// Handle email signup
+// Handle email signup with Supabase Auth
 document.getElementById('signup-form').addEventListener('submit', async (e) => {
   e.preventDefault();
+  
+  if (!supabase) {
+    alert('Authentication system not ready. Please refresh and try again.');
+    return;
+  }
   
   // Collect meeting preferences
   const meetingPreferences = Array.from(document.querySelectorAll('input[name="meetingPreference"]:checked'))
@@ -315,13 +337,14 @@ document.getElementById('signup-form').addEventListener('submit', async (e) => {
     .map(item => item.trim())
     .filter(item => item.length > 0);
   
-  const payload = {
-    username: document.getElementById('username').value.trim(),
-    email: document.getElementById('email').value.trim(),
-    password: document.getElementById('password').value,
-    code: document.getElementById('invite').value.trim(),
-    
-    // Profile information
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const username = document.getElementById('username').value.trim();
+  const code = document.getElementById('invite').value.trim();
+  
+  const profileData = {
+    username,
+    code,
     displayName: document.getElementById('displayName').value.trim(),
     phoneNumber: document.getElementById('phoneNumber').value.trim() || null,
     school: document.getElementById('school').value,
@@ -336,37 +359,149 @@ document.getElementById('signup-form').addEventListener('submit', async (e) => {
   submitBtn.disabled = true;
   
   try {
-    const res = await fetch('/api/auth/signup', {
-      method: 'POST', 
-      headers: {'Content-Type': 'application/json'}, 
-      body: JSON.stringify(payload)
+    // First, create user with Supabase Auth
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          username,
+          display_name: profileData.displayName
+        }
+      }
     });
+    
+    if (authError) {
+      throw new Error(authError.message);
+    }
+    
+    if (!authData.user) {
+      throw new Error('Failed to create user account');
+    }
+    
+    // Then create the user profile in our database
+    const res = await fetch('/api/auth/signup', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        ...profileData,
+        email,
+        password // This won't be used since user is already created in Supabase
+      })
+    });
+    
     const data = await res.json();
     
     if (res.ok) {
-      localStorage.setItem('token', data.token);
-      location.href = '/web/'; // redirect to landing or dashboard
+      alert('Account created successfully! Please check your email to verify your account.');
+      location.href = '/web/'; // redirect to landing
     } else {
-      alert(data.error || 'Sign up failed');
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = '<span class="truncate">Sign Up</span>';
+      // If profile creation failed, we should clean up the Supabase user
+      await supabase.auth.signOut();
+      throw new Error(data.error || 'Profile creation failed');
     }
   } catch (error) {
-    alert('Network error - please try again');
+    console.error('Signup error:', error);
+    alert(error.message || 'Sign up failed - please try again');
     submitBtn.disabled = false;
     submitBtn.innerHTML = '<span class="truncate">Sign Up</span>';
   }
 });
 
-// Google sign-in
-function googleWithInvite() {
+// Google sign-in with Supabase Auth
+async function googleWithInvite() {
   const code = inviteInput.value.trim();
   if (!/^[A-Z0-9]{6}$/.test(code)) { 
     hint.textContent = 'enter a valid invite first'; 
     hint.className = 'mt-2 text-xs text-red-400';
     return; 
   }
-  location.href = `/api/auth/google?invite=${encodeURIComponent(code)}`;
+  
+  if (!supabase) {
+    alert('Authentication system not ready. Please refresh and try again.');
+    return;
+  }
+  
+  try {
+    // Store invite code in localStorage for OAuth callback
+    localStorage.setItem('pendingInviteCode', code);
+    
+    // Initiate Google OAuth with Supabase
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/web/signup.html?oauth=callback`
+      }
+    });
+    
+    if (error) {
+      console.error('OAuth error:', error);
+      alert('Failed to initiate Google sign-in');
+    }
+  } catch (error) {
+    console.error('Google sign-in error:', error);
+    alert('Failed to initiate Google sign-in');
+  }
+}
+
+// Handle OAuth callback
+async function handleOAuthCallback() {
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('oauth') === 'callback') {
+    const inviteCode = localStorage.getItem('pendingInviteCode');
+    
+    if (!inviteCode) {
+      alert('Invite code missing. Please try signing up again.');
+      window.location.href = '/web/signup.html';
+      return;
+    }
+    
+    try {
+      // Get the current user from Supabase
+      const { data: { user }, error } = await supabase.auth.getUser();
+      
+      if (error || !user) {
+        throw new Error('Failed to get user information');
+      }
+      
+      // Send user data and invite code to backend
+      const response = await fetch('/api/auth/oauth-callback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user: user,
+          code: inviteCode
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        localStorage.removeItem('pendingInviteCode');
+        
+        if (data.needsProfileCompletion) {
+          // Redirect to profile completion
+          window.location.href = '/web/complete-profile.html';
+        } else {
+          // User already has complete profile
+          window.location.href = '/web/';
+        }
+      } else {
+        throw new Error(data.error || 'OAuth callback failed');
+      }
+    } catch (error) {
+      console.error('OAuth callback error:', error);
+      alert(error.message || 'Failed to complete Google sign-in');
+      localStorage.removeItem('pendingInviteCode');
+      window.location.href = '/web/signup.html';
+    }
+  }
+}
+
+// Check for OAuth callback on page load
+if (window.location.search.includes('oauth=callback')) {
+  // Wait for Supabase to initialize
+  setTimeout(handleOAuthCallback, 1000);
 }
 
 function showLoginForm() {

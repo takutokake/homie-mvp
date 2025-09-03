@@ -133,6 +133,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         // Particle animation
         function createParticles() {
@@ -149,14 +150,29 @@
         }
         createParticles();
 
-        // Get token from URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const token = urlParams.get('token');
+        // Initialize Supabase
+        let supabase;
         
-        if (!token) {
-            alert('Authentication required');
-            window.location.href = '/web/signup.html';
+        async function initSupabase() {
+            try {
+                const response = await fetch('/api/auth/config');
+                const config = await response.json();
+                supabase = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
+                
+                // Check if user is authenticated
+                const { data: { user }, error } = await supabase.auth.getUser();
+                if (error || !user) {
+                    alert('Authentication required');
+                    window.location.href = '/web/signup.html';
+                }
+            } catch (error) {
+                console.error('Failed to initialize Supabase:', error);
+                alert('Authentication system error');
+                window.location.href = '/web/signup.html';
+            }
         }
+        
+        initSupabase();
 
         const completeBtn = document.getElementById('complete-btn');
 
@@ -194,11 +210,21 @@
             completeBtn.disabled = true;
             
             try {
+                if (!supabase) {
+                    throw new Error('Authentication system not ready');
+                }
+                
+                // Get current session
+                const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+                if (sessionError || !session) {
+                    throw new Error('Authentication required');
+                }
+                
                 const res = await fetch('/api/auth/complete-profile', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${session.access_token}`
                     },
                     body: JSON.stringify(payload)
                 });
@@ -206,7 +232,6 @@
                 const data = await res.json();
                 
                 if (res.ok) {
-                    localStorage.setItem('token', token);
                     alert('Profile completed successfully!');
                     window.location.href = '/web/';
                 } else {
@@ -215,7 +240,8 @@
                     completeBtn.textContent = 'Complete Profile';
                 }
             } catch (error) {
-                alert('Network error - please try again');
+                console.error('Profile completion error:', error);
+                alert(error.message || 'Network error - please try again');
                 completeBtn.disabled = false;
                 completeBtn.textContent = 'Complete Profile';
             }
