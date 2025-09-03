@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8"/>
+<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Inter%3Awght%40400%3B500%3B700%3B900&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900" onload="this.rel='stylesheet'" rel="stylesheet"/>
+<title>Homie - Sign Up</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style type="text/tailwindcss">
+        :root {
+            --homie-orange: #FDAA25;
+            --homie-violet: #CE7AFF;
+            --violet-glow: 0 0 10px rgba(206, 122, 255, 0.5), 0 0 20px rgba(206, 122, 255, 0.3);
+            --orange-glow: 0 0 15px rgba(253, 170, 37, 0.6), 0 0 30px rgba(253, 170, 37, 0.4);
+            --orange-glow-strong: 0 0 25px rgba(253, 170, 37, 0.8), 0 0 50px rgba(253, 170, 37, 0.6);
+        }
+        @keyframes glow-shift {
+            0% {
+                box-shadow: var(--violet-glow);
+                border-color: #CE7AFF;
+            }
+            100% {
+                box-shadow: var(--orange-glow);
+                border-color: #FDAA25;
+            }
+        }
+        .form-input:focus {
+            caret-color: #FDAA25;
+            animation: glow-shift 0.5s forwards;
+        }
+        .primary-cta {
+            box-shadow: var(--orange-glow);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+        .primary-cta:hover {
+            transform: scale(1.05);
+            box-shadow: var(--orange-glow-strong);
+        }
+        .primary-cta:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .verify-btn {
+            border-color: #FDAA25;
+            color: #FDAA25;
+            transition: all 0.3s ease;
+        }
+        .verify-btn:hover:not(:disabled) {
+            background-color: #FDAA25;
+            color: #1C160C;
+        }
+        .bg-grid {
+            background-image:
+                linear-gradient(to right, rgba(253, 170, 37, 0.1) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(253, 170, 37, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        @keyframes pulse-dots {
+            0%, 100% {
+                opacity: 0.2;
+                transform: scale(0.8);
+            }
+            50% {
+                opacity: 0.6;
+                transform: scale(1.2);
+            }
+        }
+        .glowing-dot {
+            width: 4px;
+            height: 4px;
+            background-color: #FDAA25;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #FDAA25, 0 0 12px #FDAA25;
+            animation: pulse-dots 4s infinite ease-in-out;
+        }
+        .glowing-dot:nth-child(1) { animation-delay: 0s; }
+        .glowing-dot:nth-child(2) { animation-delay: 1s; }
+        .glowing-dot:nth-child(3) { animation-delay: 2s; }
+        .glowing-dot:nth-child(4) { animation-delay: 3s; }
+        .glowing-dot:nth-child(5) { animation-delay: 0.5s; }
+        .glowing-dot:nth-child(6) { animation-delay: 1.5s; }
+        .glowing-dot:nth-child(7) { animation-delay: 2.5s; }
+        .glowing-dot:nth-child(8) { animation-delay: 3.5s; }
+    </style>
+</head>
+<body class="bg-[#1C160C]">
+<div class="relative flex size-full min-h-screen flex-col bg-[#1C160C] dark group/design-root overflow-hidden" style='font-family: Inter, "Noto Sans", sans-serif;'>
+<div class="absolute inset-0 z-0 bg-grid opacity-50"></div>
+<div class="absolute inset-0 z-0">
+<div class="glowing-dot absolute top-[10%] left-[20%]"></div>
+<div class="glowing-dot absolute top-[20%] left-[80%]"></div>
+<div class="glowing-dot absolute top-[50%] left-[50%]"></div>
+<div class="glowing-dot absolute top-[80%] left-[10%]"></div>
+<div class="glowing-dot absolute top-[90%] left-[90%]"></div>
+<div class="glowing-dot absolute top-[30%] left-[5%]"></div>
+<div class="glowing-dot absolute top-[60%] left-[95%]"></div>
+<div class="glowing-dot absolute top-[5%] left-[60%]"></div>
+</div>
+<div class="relative z-10 layout-container flex h-full grow flex-col">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#4A3C21] px-10 py-3">
+<div class="flex items-center gap-4 text-white">
+<svg class="h-8 w-8 text-[#FDAA25]" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M39.475 21.6262C40.358 21.4363 40.6863 21.5589 40.7581 21.5934C40.7876 21.655 40.8547 21.857 40.8082 22.3336C40.7408 23.0255 40.4502 24.0046 39.8572 25.2301C38.6799 27.6631 36.5085 30.6631 33.5858 33.5858C30.6631 36.5085 27.6632 38.6799 25.2301 39.8572C24.0046 40.4502 23.0255 40.7407 22.3336 40.8082C21.8571 40.8547 21.6551 40.7875 21.5934 40.7581C21.5589 40.6863 21.4363 40.358 21.6262 39.475C21.8562 38.4054 22.4689 36.9657 23.5038 35.2817C24.7575 33.2417 26.5497 30.9744 28.7621 28.762C30.9744 26.5497 33.2417 24.7574 35.2817 23.5037C36.9657 22.4689 38.4054 21.8562 39.475 21.6262ZM4.41189 29.2403L18.7597 43.5881C19.8813 44.7097 21.4027 44.9179 22.7217 44.7893C24.0585 44.659 25.5148 44.1631 26.9723 43.4579C29.9052 42.0387 33.2618 39.5667 36.4142 36.4142C39.5667 33.2618 42.0387 29.9052 43.4579 26.9723C44.1631 25.5148 44.659 24.0585 44.7893 22.7217C44.9179 21.4027 44.7097 19.8813 43.5881 18.7597L29.2403 4.41187C27.8527 3.02428 25.8765 3.02573 24.2861 3.36776C22.6081 3.72863 20.7334 4.58419 18.8396 5.74801C16.4978 7.18716 13.9881 9.18353 11.5858 11.5858C9.18354 13.988 7.18717 16.4978 5.74802 18.8396C4.58421 20.7334 3.72865 22.6081 3.36778 24.2861C3.02574 25.8765 3.02429 27.8527 4.41189 29.2403Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+<h1 class="text-white text-2xl font-bold leading-tight tracking-[-0.015em]">Homie</h1>
+</div>
+</header>
+<main class="flex flex-1 items-center justify-center py-16 px-4">
+<div class="w-full max-w-md space-y-8">
+<div class="text-center">
+<h2 class="text-3xl font-bold text-white">Create your account</h2>
+<p class="mt-2 text-gray-400">Join the community and start connecting.</p>
+</div>
+<form id="signup-form" class="space-y-6" method="POST">
+<div>
+<label class="sr-only" for="invite">Invite Code</label>
+<div class="flex gap-2">
+<input id="invite" name="invite" maxlength="6" placeholder="Invite code (6 chars)" 
+  class="form-input flex flex-1 min-w-0 resize-none overflow-hidden rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-base text-white placeholder:text-gray-500 focus:outline-none focus:ring-0 transition-all duration-300 uppercase" 
+  oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')" required/>
+<button id="verify-btn" type="button" class="verify-btn border px-3 py-2 rounded-lg text-sm font-medium">
+  Verify
+</button>
+</div>
+<p id="invite-hint" class="mt-2 text-xs text-gray-500">ask a friend for a code</p>
+</div>
+<div>
+<label class="sr-only" for="username">Username</label>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-base text-white placeholder:text-gray-500 focus:outline-none focus:ring-0 transition-all duration-300" id="username" name="username" placeholder="Username" required="" type="text"/>
+</div>
+<div>
+<label class="sr-only" for="email">Email</label>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-base text-white placeholder:text-gray-500 focus:outline-none focus:ring-0 transition-all duration-300" id="email" name="email" placeholder="Email address" required="" type="email"/>
+</div>
+<div>
+<label class="sr-only" for="password">Password</label>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-base text-white placeholder:text-gray-500 focus:outline-none focus:ring-0 transition-all duration-300" id="password" name="password" placeholder="Password (min 8 chars)" required="" type="password"/>
+</div>
+<div>
+<button id="submit-btn" class="primary-cta flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-full h-12 px-5 bg-[#FDAA25] text-[#1C160C] text-base font-bold leading-normal tracking-wide" type="submit" disabled>
+<span class="truncate">Sign Up</span>
+</button>
+</div>
+<div class="text-center">
+<p class="text-sm text-gray-500 mb-3">or</p>
+<button type="button" onclick="googleWithInvite()" class="flex w-full items-center justify-center gap-3 rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-white hover:bg-[#2A1F13] transition-colors">
+<svg class="h-5 w-5" viewBox="0 0 24 24">
+<path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+<path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+<path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+<path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+</svg>
+Continue with Google
+</button>
+</div>
+</form>
+<p class="text-center text-sm text-gray-500">
+Already have an account?
+<a class="font-medium text-[#FDAA25] hover:text-[#fbc256]" href="#" onclick="showLoginForm()">Sign in</a>
+</p>
+</div>
+</main>
+</div>
+</div>
+
+<script>
+const inviteInput = document.getElementById('invite');
+const verifyBtn = document.getElementById('verify-btn');
+const submitBtn = document.getElementById('submit-btn');
+const hint = document.getElementById('invite-hint');
+
+verifyBtn.addEventListener('click', async () => {
+  const code = inviteInput.value.trim();
+  if (!/^[A-Z0-9]{6}$/.test(code)) { 
+    hint.textContent = 'invalid format'; 
+    hint.className = 'mt-2 text-xs text-red-400';
+    return; 
+  }
+  
+  verifyBtn.textContent = 'Verifying...';
+  verifyBtn.disabled = true;
+  
+  try {
+    const res = await fetch('/api/invites/verify', {
+      method: 'POST', 
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ code })
+    });
+    const data = await res.json();
+    
+    if (data.valid) {
+      hint.textContent = `valid • ${data.remaining} use(s) left`;
+      hint.className = 'mt-2 text-xs text-green-400';
+      submitBtn.disabled = false;
+    } else {
+      hint.textContent = `not valid (${data.reason || 'unknown'})`;
+      hint.className = 'mt-2 text-xs text-red-400';
+      submitBtn.disabled = true;
+    }
+  } catch (error) {
+    hint.textContent = 'verification failed - try again';
+    hint.className = 'mt-2 text-xs text-red-400';
+    submitBtn.disabled = true;
+  }
+  
+  verifyBtn.textContent = 'Verify';
+  verifyBtn.disabled = false;
+});
+
+// Handle email signup
+document.getElementById('signup-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const payload = {
+    username: document.getElementById('username').value.trim(),
+    email: document.getElementById('email').value.trim(),
+    password: document.getElementById('password').value,
+    code: document.getElementById('invite').value.trim()
+  };
+  
+  submitBtn.textContent = 'Creating Account...';
+  submitBtn.disabled = true;
+  
+  try {
+    const res = await fetch('/api/auth/signup', {
+      method: 'POST', 
+      headers: {'Content-Type': 'application/json'}, 
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    
+    if (res.ok) {
+      localStorage.setItem('token', data.token);
+      location.href = '/web/'; // redirect to landing or dashboard
+    } else {
+      alert(data.error || 'Sign up failed');
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<span class="truncate">Sign Up</span>';
+    }
+  } catch (error) {
+    alert('Network error - please try again');
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = '<span class="truncate">Sign Up</span>';
+  }
+});
+
+// Google sign-in
+function googleWithInvite() {
+  const code = inviteInput.value.trim();
+  if (!/^[A-Z0-9]{6}$/.test(code)) { 
+    hint.textContent = 'enter a valid invite first'; 
+    hint.className = 'mt-2 text-xs text-red-400';
+    return; 
+  }
+  location.href = `/api/auth/google?invite=${encodeURIComponent(code)}`;
+}
+
+function showLoginForm() {
+  // TODO: Implement login form toggle or redirect to login page
+  alert('Login functionality coming soon!');
+}
+</script>
+
+</body></html>
