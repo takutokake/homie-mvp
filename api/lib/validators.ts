@@ -5,7 +5,6 @@ export const inviteCodeSchema = z.string().regex(/^[A-Z0-9]{6}$/, 'Invalid invit
 export const signupSchema = z.object({
   username: z.string().min(3).max(20).regex(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores'),
   email: z.string().email('Invalid email format'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
   code: inviteCodeSchema,
   
   // Profile information

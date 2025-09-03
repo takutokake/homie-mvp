@@ -385,8 +385,8 @@ document.getElementById('signup-form').addEventListener('submit', async (e) => {
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
         ...profileData,
-        email,
-        password // This won't be used since user is already created in Supabase
+        email
+        // No password needed since user is already created in Supabase
       })
     });
     

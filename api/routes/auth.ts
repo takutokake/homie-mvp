@@ -20,7 +20,7 @@ router.post('/signup', signupLimit, async (req, res) => {
   try {
     const validatedData = signupSchema.parse(req.body);
     const { 
-      username, email, password, code,
+      username, email, code,
       displayName, phoneNumber, school, locationDetails, 
       priceRange, meetingPreference, interests, cuisinePreferences 
     } = validatedData;
@@ -57,23 +57,8 @@ router.post('/signup', signupLimit, async (req, res) => {
         throw new Error('username_taken');
       }
 
-      // Create user in Supabase Auth
-      const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
-        email,
-        password,
-        email_confirm: true,
-        user_metadata: {
-          username,
-          displayName
-        }
-      });
-
-      if (authError || !authData.user) {
-        if (authError?.message?.includes('already registered')) {
-          throw new Error('email_taken');
-        }
-        throw new Error('auth_creation_failed');
-      }
+      // Note: User is already created in Supabase Auth by frontend
+      // We just need to verify they exist and create the profile
 
       // Create user profile in our database
       const user = await tx.user.create({
