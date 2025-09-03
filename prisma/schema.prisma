@@ -16,10 +16,36 @@ model User {
   username     String   @unique
   passwordHash String?  // null if Google-only
   googleId     String?  @unique
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  
+  // Profile Information
+  displayName        String
+  phoneNumber        String?
+  profilePictureUrl  String?
+  
+  // Location & School
+  school            String?  // USC or UCLA (required after profile completion)
+  locationDetails   String?
+  
+  // Preferences
+  priceRange          String?  // $, $$, $$$, $$$$ (required after profile completion)
+  meetingPreference   String[] @default([])
+  interests           String[] @default([])
+  cuisinePreferences  String[] @default([])
+  
+  // Profile Status
+  profileCompleted Boolean @default(false)
+  isActive         Boolean @default(true)
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  lastLogin DateTime?
 
   sessions Session[]
+  createdMeetups Meetup[] @relation("MeetupCreator")
+  meetupParticipations MeetupParticipant[]
+  connectionsAsUser1 UserConnection[] @relation("User1Connections")
+  connectionsAsUser2 UserConnection[] @relation("User2Connections")
 
   @@map("users")
 }
@@ -31,6 +57,11 @@ model Invite {
   usedCount  Int       @default(0)
   expiresAt  DateTime?
   isActive   Boolean   @default(true)
+  
+  // Enhanced invite features
+  schoolRestriction String? // USC, UCLA, BOTH
+  inviteType        String  @default("general") // general, premium, admin
+  
   createdAt  DateTime  @default(now())
 
   @@map("invites")
@@ -46,4 +77,52 @@ model Session {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("sessions")
+}
+
+model UserConnection {
+  id             String   @id @default(cuid())
+  user1Id        String
+  user2Id        String
+  connectionType String   @default("match") // match, friend, blocked
+  createdAt      DateTime @default(now())
+
+  user1 User @relation("User1Connections", fields: [user1Id], references: [id], onDelete: Cascade)
+  user2 User @relation("User2Connections", fields: [user2Id], references: [id], onDelete: Cascade)
+
+  @@unique([user1Id, user2Id])
+  @@map("user_connections")
+}
+
+model Meetup {
+  id                  String   @id @default(cuid())
+  createdBy           String
+  title               String
+  description         String?
+  location            String
+  priceRange          String   // $, $$, $$$, $$$$
+  cuisineType         String?
+  maxParticipants     Int      @default(4)
+  currentParticipants Int      @default(1)
+  scheduledFor        DateTime
+  status              String   @default("open") // open, full, cancelled, completed
+  createdAt           DateTime @default(now())
+
+  creator      User                @relation("MeetupCreator", fields: [createdBy], references: [id], onDelete: Cascade)
+  participants MeetupParticipant[]
+
+  @@map("meetups")
+}
+
+model MeetupParticipant {
+  id       String   @id @default(cuid())
+  meetupId String
+  userId   String
+  joinedAt DateTime @default(now())
+  status   String   @default("confirmed") // confirmed, cancelled, no_show
+
+  meetup Meetup @relation(fields: [meetupId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([meetupId, userId])
+  @@map("meetup_participants")
 }

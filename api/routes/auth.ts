@@ -4,7 +4,7 @@ import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { prisma } from '../lib/prisma.js';
 import { signJwt } from '../lib/jwt.js';
-import { signupSchema, loginSchema, validatePassword } from '../lib/validators.js';
+import { signupSchema, loginSchema, validatePassword, completeProfileSchema } from '../lib/validators.js';
 import { signupLimit, loginLimit } from '../middleware/rateLimit.js';
 import { authenticateToken, AuthenticatedRequest } from '../middleware/auth.js';
 
@@ -54,7 +54,12 @@ passport.use(new GoogleStrategy({
 
 router.post('/signup', signupLimit, async (req, res) => {
   try {
-    const { username, email, password, code } = signupSchema.parse(req.body);
+    const validatedData = signupSchema.parse(req.body);
+    const { 
+      username, email, password, code,
+      displayName, phoneNumber, school, locationDetails, 
+      priceRange, meetingPreference, interests, cuisinePreferences 
+    } = validatedData;
     
     // Validate password strength
     const passwordValidation = validatePassword(password);
@@ -80,6 +85,11 @@ router.post('/signup', signupLimit, async (req, res) => {
         throw new Error('invalid_invite');
       }
 
+      // Check school restriction
+      if (invite.schoolRestriction && invite.schoolRestriction !== 'BOTH' && invite.schoolRestriction !== school) {
+        throw new Error('school_restricted');
+      }
+
       // Check if email or username already exists
       const existingUser = await tx.user.findFirst({
         where: {
@@ -99,13 +109,23 @@ router.post('/signup', signupLimit, async (req, res) => {
         }
       }
 
-      // Create user
+      // Create user with full profile
       const passwordHash = await bcrypt.hash(password, 12);
       const user = await tx.user.create({
         data: {
           email,
           username,
-          passwordHash
+          passwordHash,
+          displayName,
+          phoneNumber,
+          school,
+          locationDetails,
+          priceRange,
+          meetingPreference,
+          interests,
+          cuisinePreferences,
+          profileCompleted: true,
+          lastLogin: new Date()
         }
       });
 
@@ -129,7 +149,10 @@ router.post('/signup', signupLimit, async (req, res) => {
         user: {
           id: user.id,
           email: user.email,
-          username: user.username
+          username: user.username,
+          displayName: user.displayName,
+          school: user.school,
+          profileCompleted: user.profileCompleted
         }
       });
     });
@@ -138,6 +161,9 @@ router.post('/signup', signupLimit, async (req, res) => {
     
     if (error.message === 'invalid_invite') {
       return res.status(400).json({ error: 'invalid_invite' });
+    }
+    if (error.message === 'school_restricted') {
+      return res.status(400).json({ error: 'school_restricted' });
     }
     if (error.message === 'email_taken') {
       return res.status(409).json({ error: 'email_taken' });
@@ -219,7 +245,7 @@ router.get('/google/callback',
         return res.redirect(`/web/?token=${token}`);
       }
 
-      // New user - need invite code
+      // New user - need invite code and profile completion
       const inviteCode = req.session.inviteCode;
       if (!inviteCode) {
         return res.redirect('/web/signup.html?error=invite_required');
@@ -230,41 +256,36 @@ router.get('/google/callback',
         const invite = await tx.invite.findUnique({
           where: { code: inviteCode }
         });
-
-        if (!invite || !invite.isActive || 
-            (invite.expiresAt && invite.expiresAt < new Date()) ||
-            invite.usedCount >= invite.maxUses) {
+        if (!invite || !invite.isActive || (invite.expiresAt && invite.expiresAt < new Date()) || invite.usedCount >= invite.maxUses) {
           throw new Error('invalid_invite');
         }
-
-        // Create user
+        
+        // Create user with minimal profile (needs completion)
         const user = await tx.user.create({
           data: {
             email: googleUser.email,
-            username: googleUser.email.split('@')[0], // Default username from email
-            googleId: googleUser.googleId
+            username: googleUser.email.split('@')[0],
+            googleId: googleUser.googleId,
+            displayName: googleUser.email.split('@')[0], // Temporary display name
+            profileCompleted: false, // Requires profile completion
+            lastLogin: new Date()
           }
         });
-
-        // Consume invite
+        
         await tx.invite.update({
           where: { code: inviteCode },
           data: { usedCount: { increment: 1 } }
         });
-
-        // Create session
+        
         const { token, jti } = signJwt(user.id);
         await tx.session.create({
-          data: {
-            userId: user.id,
-            jwtId: jti
-          }
+          data: { userId: user.id, jwtId: jti }
         });
-
-        // Clear invite from session
+        
         delete req.session.inviteCode;
         
-        res.redirect(`/web/?token=${token}`);
+        // Redirect to profile completion page
+        res.redirect(`/web/complete-profile.html?token=${token}`);
       });
     } catch (error: any) {
       console.error('Google OAuth callback error:', error);
@@ -300,6 +321,49 @@ router.post('/logout', authenticateToken, async (req: AuthenticatedRequest, res)
   } catch (error) {
     console.error('Logout error:', error);
     res.status(500).json({ error: 'logout_failed' });
+  }
+});
+
+// Complete profile for Google OAuth users
+router.post('/complete-profile', authenticateToken, async (req: AuthenticatedRequest, res) => {
+  try {
+    const validatedData = completeProfileSchema.parse(req.body);
+    const { 
+      displayName, phoneNumber, school, locationDetails, 
+      priceRange, meetingPreference, interests, cuisinePreferences 
+    } = validatedData;
+
+    // Update user profile
+    const user = await prisma.user.update({
+      where: { id: req.userId },
+      data: {
+        displayName,
+        phoneNumber,
+        school,
+        locationDetails,
+        priceRange,
+        meetingPreference,
+        interests,
+        cuisinePreferences,
+        profileCompleted: true,
+        lastLogin: new Date()
+      }
+    });
+
+    res.json({
+      message: 'Profile completed successfully',
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        displayName: user.displayName,
+        school: user.school,
+        profileCompleted: user.profileCompleted
+      }
+    });
+  } catch (error: any) {
+    console.error('Complete profile error:', error);
+    return res.status(500).json({ error: 'profile_completion_failed' });
   }
 });
 
