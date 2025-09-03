@@ -23,6 +23,14 @@
       "dest": "/web/$1"
     },
     {
+      "src": "/signup.html",
+      "dest": "/web/signup.html"
+    },
+    {
+      "src": "/complete-profile.html",
+      "dest": "/web/complete-profile.html"
+    },
+    {
       "src": "/",
       "dest": "/web/index.html"
     }

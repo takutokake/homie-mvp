@@ -48,8 +48,8 @@
 <p class="text-lg md:text-xl text-gray-400 max-w-2xl">every hangout is through a friend of a friend.</p>
 <div class="mt-8 flex flex-col items-center gap-3">
 <button 
-  onclick="location.href='signup.html'" 
-  onkeydown="if(event.key==='Enter') location.href='signup.html'"
+  onclick="location.href='/web/signup.html'" 
+  onkeydown="if(event.key==='Enter') location.href='/web/signup.html'"
   class="cta-button flex items-center justify-center rounded-full h-14 px-8 bg-[var(--homie-orange)] text-black text-lg font-bold tracking-wide hover:bg-[#fbc256] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--homie-orange)] focus:ring-offset-2 focus:ring-offset-black"
   tabindex="0">
           enter with invite
@@ -84,7 +84,7 @@
     // Global Enter key handler for invite button
     document.addEventListener('keydown', function(event) {
         if (event.key === 'Enter' && !event.target.matches('input, textarea, button')) {
-            location.href = 'signup.html';
+            location.href = '/web/signup.html';
         }
     });
     
