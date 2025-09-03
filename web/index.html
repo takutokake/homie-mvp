@@ -47,7 +47,11 @@
 <h1 class="text-6xl md:text-8xl font-black tracking-tighter text-white">never meet alone.</h1>
 <p class="text-lg md:text-xl text-gray-400 max-w-2xl">every hangout is through a friend of a friend.</p>
 <div class="mt-8 flex flex-col items-center gap-3">
-<button onclick="location.href='signup.html'" class="cta-button flex items-center justify-center rounded-full h-14 px-8 bg-[var(--homie-orange)] text-black text-lg font-bold tracking-wide">
+<button 
+  onclick="location.href='signup.html'" 
+  onkeydown="if(event.key==='Enter') location.href='signup.html'"
+  class="cta-button flex items-center justify-center rounded-full h-14 px-8 bg-[var(--homie-orange)] text-black text-lg font-bold tracking-wide hover:bg-[#fbc256] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--homie-orange)] focus:ring-offset-2 focus:ring-offset-black"
+  tabindex="0">
           enter with invite
         </button>
 <p class="text-xs text-gray-500">no invite? ask your friends.</p>
@@ -57,7 +61,7 @@
 <section class="py-24 px-4 text-center bg-[#1C1C1C] relative">
 <div class="max-w-3xl mx-auto">
 <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">homie is where real connections happen.</h2>
-<p class="text-lg md:text-xl text-gray-400">bring a friend. meet through friends. join events that matter.</p>
+<p class="text-lg md:text-xl text-gray-400">bring a homie. meet a homie. join events that matter.</p>
 </div>
 </section>
 <footer class="text-center py-10 px-4 bg-[#1C1C1C]">
@@ -76,6 +80,14 @@
     }
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
+    
+    // Global Enter key handler for invite button
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter' && !event.target.matches('input, textarea, button')) {
+            location.href = 'signup.html';
+        }
+    });
+    
     let particlesArray;
     const mouse = {
         x: null,
