@@ -130,13 +130,16 @@
 
 <!-- Auth Options Section (Hidden by default) -->
 <div id="auth-section" class="space-y-6 hidden">
-<div class="flex flex-col gap-4">
-<div class="flex justify-center mb-4">
-  <div class="inline-flex rounded-lg border border-[#4A3C21] p-1">
-    <button type="button" onclick="toggleAuthMode('signup')" id="signup-tab" class="px-4 py-2 rounded-md text-sm font-medium text-white bg-[#231C10] focus:outline-none">Sign Up</button>
-    <button type="button" onclick="toggleAuthMode('login')" id="login-tab" class="px-4 py-2 rounded-md text-sm font-medium text-gray-400 hover:text-white focus:outline-none">Login</button>
-  </div>
-</div>
+<!-- Auth Mode Text Toggle -->
+                <div class="text-center mb-6">
+                    <p class="text-sm text-gray-600">
+                        <span id="auth-mode-text">Already have an account?</span>
+                        <button type="button" onclick="toggleAuthMode()" 
+                                class="text-homie-orange hover:text-homie-violet font-medium ml-1 transition-colors">
+                            Sign in
+                        </button>
+                    </p>
+                </div>
 <button type="button" onclick="googleWithInvite()" class="flex w-full items-center justify-center gap-3 rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-white hover:bg-[#2a2113] transition-all duration-300">
   <img src="https://www.google.com/favicon.ico" alt="Google" class="w-5 h-5"/>
   <span id="google-btn-text">Continue with Google</span>
@@ -148,7 +151,6 @@
   <div class="relative flex justify-center text-sm">
     <span class="px-2 bg-[#1C160C] text-gray-400">or</span>
   </div>
-</div>
 </div>
 
 <!-- Basic Account Info -->
@@ -469,7 +471,6 @@ async function handleOAuthCallback() {
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get('oauth') === 'callback') {
     const inviteCode = localStorage.getItem('pendingInviteCode');
-    const authMode = localStorage.getItem('authMode') || 'signup';
     
     if (!inviteCode) {
       alert('Invite code missing. Please try signing up again.');
@@ -480,34 +481,11 @@ async function handleOAuthCallback() {
     try {
       // Get the current user from Supabase
       const { data: { user }, error } = await supabase.auth.getUser();
-      
       if (error || !user) {
         throw new Error('Failed to get user information');
       }
       
-      // For login mode, check if user exists first
-      if (authMode === 'login') {
-        const userCheckResponse = await fetch('/api/auth/check-user', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: user.email })
-        });
-        
-        const userData = await userCheckResponse.json();
-        if (!userCheckResponse.ok) {
-          throw new Error('This email is not registered. Please sign up first.');
-        }
-        
-        if (!userData.profileCompleted) {
-          window.location.href = '/web/complete-profile.html';
-          return;
-        } else {
-          window.location.href = '/web/thank-you.html';
-          return;
-        }
-      }
-      
-      // For signup mode, create new user profile
+      // Create or get user profile
       const response = await fetch('/api/auth/oauth-callback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -519,18 +497,18 @@ async function handleOAuthCallback() {
       
       const data = await response.json();
       
-      if (response.ok) {
-        localStorage.removeItem('pendingInviteCode');
-        
-        if (data.needsProfileCompletion) {
-          // All users complete their profile
-          window.location.href = '/web/complete-profile.html';
-        } else {
-          // User completes their profile
-          window.location.href = '/web/complete-profile.html';
-        }
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to process authentication');
+      }
+      
+      // Clear stored invite code
+      localStorage.removeItem('pendingInviteCode');
+      
+      // Always redirect to profile completion if needed
+      if (!data.profileCompleted) {
+        window.location.href = '/web/complete-profile.html';
       } else {
-        throw new Error(data.error || 'OAuth callback failed');
+        window.location.href = '/web/thank-you.html';
       }
     } catch (error) {
       console.error('OAuth callback error:', error);
@@ -549,28 +527,31 @@ if (window.location.search.includes('oauth=callback')) {
 
 let authMode = 'signup';
 
-function toggleAuthMode(mode) {
-  authMode = mode;
-  const signupTab = document.getElementById('signup-tab');
-  const loginTab = document.getElementById('login-tab');
-  const googleBtnText = document.getElementById('google-btn-text');
-  const submitBtn = document.getElementById('submit-btn');
+function toggleAuthMode() {
+    authMode = authMode === 'signup' ? 'login' : 'signup';
+    updateAuthModeUI();
+    updateButtonText();
+}
 
-  if (mode === 'login') {
-    loginTab.classList.add('bg-[#231C10]', 'text-white');
-    loginTab.classList.remove('text-gray-400');
-    signupTab.classList.remove('bg-[#231C10]', 'text-white');
-    signupTab.classList.add('text-gray-400');
-    googleBtnText.textContent = 'Sign in with Google';
-    submitBtn.innerHTML = '<span class="truncate">Sign In</span>';
-  } else {
-    signupTab.classList.add('bg-[#231C10]', 'text-white');
-    signupTab.classList.remove('text-gray-400');
-    loginTab.classList.remove('bg-[#231C10]', 'text-white');
-    loginTab.classList.add('text-gray-400');
-    googleBtnText.textContent = 'Continue with Google';
-    submitBtn.innerHTML = '<span class="truncate">Sign Up</span>';
-  }
+function updateAuthModeUI() {
+    const text = document.getElementById('auth-mode-text');
+    const button = text.nextElementSibling;
+    
+    if (authMode === 'signup') {
+        text.textContent = 'Already have an account?';
+        button.textContent = 'Sign in';
+    } else {
+        text.textContent = 'Need an account?';
+        button.textContent = 'Sign up';
+    }
+}
+
+function updateButtonText() {
+    const googleBtnText = document.getElementById('google-btn-text');
+    const submitBtn = document.getElementById('submit-btn');
+
+    googleBtnText.textContent = authMode === 'login' ? 'Sign in with Google' : 'Continue with Google';
+    submitBtn.innerHTML = authMode === 'login' ? '<span class="truncate">Sign in</span>' : '<span class="truncate">Continue</span>';
 }
 </script>
 
