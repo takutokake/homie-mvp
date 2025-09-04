@@ -2,17 +2,21 @@
   "version": 2,
   "builds": [
     {
-      "src": "package.json",
+      "src": "api/server.ts",
       "use": "@vercel/node",
       "config": {
-        "zeroConfig": true
+        "includeFiles": ["prisma/schema.prisma"]
       }
+    },
+    {
+      "src": "web/**",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/api/server.js"
+      "dest": "/api/server.ts"
     },
     {
       "src": "/web/(.*)",
