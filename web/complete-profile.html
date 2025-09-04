@@ -36,16 +36,16 @@
             <form id="profile-form" class="space-y-4">
                 <!-- Display Name -->
                 <div>
-                    <label for="displayName" class="block text-sm font-medium text-gray-700 mb-1">Display Name *</label>
+                    <label for="displayName" class="block text-sm font-medium text-gray-700 mb-1">Name *</label>
                     <input type="text" id="displayName" required 
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-homie-orange focus:border-transparent"
-                           placeholder="How should others see your name?">
+                           placeholder="Your full name">
                 </div>
 
                 <!-- Phone Number -->
                 <div>
-                    <label for="phoneNumber" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                    <input type="tel" id="phoneNumber" 
+                    <label for="phoneNumber" class="block text-sm font-medium text-gray-700 mb-1">Phone Number *</label>
+                    <input type="tel" id="phoneNumber" required
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-homie-orange focus:border-transparent"
                            placeholder="(555) 123-4567">
                 </div>
@@ -61,12 +61,12 @@
                     </select>
                 </div>
 
-                <!-- Location Details -->
+                <!-- Neighborhood -->
                 <div>
-                    <label for="locationDetails" class="block text-sm font-medium text-gray-700 mb-1">Location Details</label>
-                    <input type="text" id="locationDetails" 
+                    <label for="neighborhood" class="block text-sm font-medium text-gray-700 mb-1">Neighborhood / Dorm</label>
+                    <input type="text" id="neighborhood" 
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-homie-orange focus:border-transparent"
-                           placeholder="e.g., Westwood, Downtown LA">
+                           placeholder="e.g., Village, Westwood, Downtown">
                 </div>
 
                 <!-- Price Range -->
@@ -82,51 +82,135 @@
                     </select>
                 </div>
 
-                <!-- Meeting Preferences -->
+                <!-- Interests -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Meeting Preferences</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Top 3 Interests *</label>
                     <div class="grid grid-cols-2 gap-2">
                         <label class="flex items-center">
-                            <input type="checkbox" name="meetingPreference" value="coffee" class="mr-2 text-homie-orange">
-                            <span class="text-sm">Coffee</span>
+                            <input type="checkbox" name="interests" value="sports" class="mr-2 text-homie-orange">
+                            <span class="text-sm">Sports</span>
                         </label>
                         <label class="flex items-center">
-                            <input type="checkbox" name="meetingPreference" value="lunch" class="mr-2 text-homie-orange">
-                            <span class="text-sm">Lunch</span>
+                            <input type="checkbox" name="interests" value="music" class="mr-2 text-homie-orange">
+                            <span class="text-sm">Music</span>
                         </label>
                         <label class="flex items-center">
-                            <input type="checkbox" name="meetingPreference" value="dinner" class="mr-2 text-homie-orange">
-                            <span class="text-sm">Dinner</span>
+                            <input type="checkbox" name="interests" value="art" class="mr-2 text-homie-orange">
+                            <span class="text-sm">Art</span>
                         </label>
                         <label class="flex items-center">
-                            <input type="checkbox" name="meetingPreference" value="study" class="mr-2 text-homie-orange">
-                            <span class="text-sm">Study</span>
+                            <input type="checkbox" name="interests" value="tech" class="mr-2 text-homie-orange">
+                            <span class="text-sm">Tech</span>
                         </label>
                         <label class="flex items-center">
-                            <input type="checkbox" name="meetingPreference" value="casual" class="mr-2 text-homie-orange">
-                            <span class="text-sm">Casual</span>
+                            <input type="checkbox" name="interests" value="gaming" class="mr-2 text-homie-orange">
+                            <span class="text-sm">Gaming</span>
                         </label>
                         <label class="flex items-center">
-                            <input type="checkbox" name="meetingPreference" value="activity" class="mr-2 text-homie-orange">
-                            <span class="text-sm">Activity</span>
+                            <input type="checkbox" name="interests" value="fitness" class="mr-2 text-homie-orange">
+                            <span class="text-sm">Fitness</span>
                         </label>
                     </div>
                 </div>
 
-                <!-- Interests -->
+                <!-- Type of Hangout -->
                 <div>
-                    <label for="interests" class="block text-sm font-medium text-gray-700 mb-1">Interests</label>
-                    <input type="text" id="interests" 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-homie-orange focus:border-transparent"
-                           placeholder="e.g., hiking, photography, music (comma-separated)">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Type of Hangout *</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="flex items-center">
+                            <input type="checkbox" name="hangoutTypes" value="casual" class="mr-2 text-homie-orange">
+                            <span class="text-sm">Casual Chat</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="hangoutTypes" value="study" class="mr-2 text-homie-orange">
+                            <span class="text-sm">Study Session</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="hangoutTypes" value="activity" class="mr-2 text-homie-orange">
+                            <span class="text-sm">Activity</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="hangoutTypes" value="food" class="mr-2 text-homie-orange">
+                            <span class="text-sm">Food</span>
+                        </label>
+                    </div>
                 </div>
 
-                <!-- Cuisine Preferences -->
+                <!-- Time of Day -->
                 <div>
-                    <label for="cuisinePreferences" class="block text-sm font-medium text-gray-700 mb-1">Cuisine Preferences</label>
-                    <input type="text" id="cuisinePreferences" 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-homie-orange focus:border-transparent"
-                           placeholder="e.g., Italian, Korean, Mexican (comma-separated)">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Preferred Time of Day *</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="flex items-center">
+                            <input type="checkbox" name="preferredTimeOfDay" value="morning" class="mr-2 text-homie-orange">
+                            <span class="text-sm">Morning</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="preferredTimeOfDay" value="afternoon" class="mr-2 text-homie-orange">
+                            <span class="text-sm">Afternoon</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="preferredTimeOfDay" value="evening" class="mr-2 text-homie-orange">
+                            <span class="text-sm">Evening</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="preferredTimeOfDay" value="night" class="mr-2 text-homie-orange">
+                            <span class="text-sm">Night</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Preferred Days -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Preferred Days *</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <label class="flex items-center">
+                            <input type="checkbox" name="preferredDays" value="mon" class="mr-2 text-homie-orange">
+                            <span class="text-sm">Monday</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="preferredDays" value="tue" class="mr-2 text-homie-orange">
+                            <span class="text-sm">Tuesday</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="preferredDays" value="wed" class="mr-2 text-homie-orange">
+                            <span class="text-sm">Wednesday</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="preferredDays" value="thu" class="mr-2 text-homie-orange">
+                            <span class="text-sm">Thursday</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="preferredDays" value="fri" class="mr-2 text-homie-orange">
+                            <span class="text-sm">Friday</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="preferredDays" value="sat" class="mr-2 text-homie-orange">
+                            <span class="text-sm">Saturday</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="preferredDays" value="sun" class="mr-2 text-homie-orange">
+                            <span class="text-sm">Sunday</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Meeting Preferences -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Meeting Preferences *</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="flex items-center">
+                            <input type="checkbox" name="meetingPreference" value="1on1" class="mr-2 text-homie-orange">
+                            <span class="text-sm">1-on-1</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="meetingPreference" value="small_group" class="mr-2 text-homie-orange">
+                            <span class="text-sm">Small Group (2-4)</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="meetingPreference" value="large_group" class="mr-2 text-homie-orange">
+                            <span class="text-sm">Large Group (5+)</span>
+                        </label>
+                    </div>
                 </div>
 
                 <button type="submit" id="complete-btn" 
@@ -164,14 +248,22 @@
                 supabase = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
                 
                 // Check if user is authenticated
-                const { data: { user }, error } = await supabase.auth.getUser();
-                if (error || !user) {
-                    alert('Authentication required');
+                const { data: { session }, error } = await supabase.auth.getSession();
+                if (error || !session) {
+                    console.error('No session found');
                     window.location.href = '/web/signup.html';
+                    return;
+                }
+
+                // Get user data
+                const { data: { user }, error: userError } = await supabase.auth.getUser();
+                if (userError || !user) {
+                    console.error('No user found');
+                    window.location.href = '/web/signup.html';
+                    return;
                 }
             } catch (error) {
                 console.error('Failed to initialize Supabase:', error);
-                alert('Authentication system error');
                 window.location.href = '/web/signup.html';
             }
         }
@@ -181,33 +273,74 @@
         const completeBtn = document.getElementById('complete-btn');
 
         // Handle profile completion
+        // Limit checkbox selections to 3 for interests
+        const interestCheckboxes = document.querySelectorAll('input[name="interests"]');
+        interestCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const checked = document.querySelectorAll('input[name="interests"]:checked');
+                if (checked.length > 3) {
+                    this.checked = false;
+                    alert('Please select only up to 3 interests');
+                }
+            });
+        });
+
         document.getElementById('profile-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // Collect meeting preferences
+            // Collect all checkbox selections
+            const interests = Array.from(document.querySelectorAll('input[name="interests"]:checked'))
+                .map(cb => cb.value);
+            
+            const hangoutTypes = Array.from(document.querySelectorAll('input[name="hangoutTypes"]:checked'))
+                .map(cb => cb.value);
+            
+            const preferredTimeOfDay = Array.from(document.querySelectorAll('input[name="preferredTimeOfDay"]:checked'))
+                .map(cb => cb.value);
+            
+            const preferredDays = Array.from(document.querySelectorAll('input[name="preferredDays"]:checked'))
+                .map(cb => cb.value);
+            
             const meetingPreferences = Array.from(document.querySelectorAll('input[name="meetingPreference"]:checked'))
                 .map(cb => cb.value);
             
-            // Parse interests and cuisine preferences
-            const interests = document.getElementById('interests').value
-                .split(',')
-                .map(item => item.trim())
-                .filter(item => item.length > 0);
-                
-            const cuisinePreferences = document.getElementById('cuisinePreferences').value
-                .split(',')
-                .map(item => item.trim())
-                .filter(item => item.length > 0);
+            // Validate required selections
+            if (interests.length === 0 || interests.length > 3) {
+                alert('Please select 1-3 interests');
+                return;
+            }
+            
+            if (hangoutTypes.length === 0) {
+                alert('Please select at least one type of hangout');
+                return;
+            }
+            
+            if (preferredTimeOfDay.length === 0) {
+                alert('Please select at least one preferred time of day');
+                return;
+            }
+            
+            if (preferredDays.length === 0) {
+                alert('Please select at least one preferred day');
+                return;
+            }
+            
+            if (meetingPreferences.length === 0) {
+                alert('Please select at least one meeting preference');
+                return;
+            }
             
             const payload = {
                 displayName: document.getElementById('displayName').value.trim(),
-                phoneNumber: document.getElementById('phoneNumber').value.trim() || null,
+                phoneNumber: document.getElementById('phoneNumber').value.trim(),
                 school: document.getElementById('school').value,
-                locationDetails: document.getElementById('locationDetails').value.trim() || null,
+                neighborhood: document.getElementById('neighborhood').value.trim() || null,
                 priceRange: document.getElementById('priceRange').value,
-                meetingPreference: meetingPreferences,
-                interests: interests,
-                cuisinePreferences: cuisinePreferences
+                interests,
+                hangoutTypes,
+                preferredTimeOfDay,
+                preferredDays,
+                meetingPreference: meetingPreferences
             };
             
             completeBtn.textContent = 'Completing Profile...';
@@ -218,13 +351,17 @@
                     throw new Error('Authentication system not ready');
                 }
                 
-                // Get current session
                 const { data: { session }, error: sessionError } = await supabase.auth.getSession();
                 if (sessionError || !session) {
                     throw new Error('Authentication required');
                 }
+
+                const { data: { user }, error: userError } = await supabase.auth.getUser();
+                if (userError || !user) {
+                    throw new Error('User data not found');
+                }
                 
-                const res = await fetch('/api/auth/complete-profile', {
+                const res = await fetch('/api/profile/complete-profile', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -237,7 +374,7 @@
                 
                 if (res.ok) {
                     alert('Profile completed successfully!');
-                    window.location.href = '/web/';
+                    window.location.href = '/web/thank-you.html';
                 } else {
                     alert(data.error || 'Profile completion failed');
                     completeBtn.disabled = false;

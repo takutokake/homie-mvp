@@ -16,16 +16,39 @@ router.post('/complete-profile', authenticateToken, async (req: AuthenticatedReq
       displayName,
       phoneNumber,
       school,
-      locationDetails,
+      neighborhood,
       priceRange,
-      meetingPreference,
       interests,
-      cuisinePreferences
+      hangoutTypes,
+      preferredTimeOfDay,
+      preferredDays,
+      meetingPreference
     } = req.body;
 
     // Validate required fields
-    if (!displayName || !school || !priceRange) {
+    if (!displayName || !phoneNumber || !school || !priceRange) {
       return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // Validate array fields
+    if (!interests?.length || interests.length > 3) {
+      return res.status(400).json({ error: 'Please select 1-3 interests' });
+    }
+
+    if (!hangoutTypes?.length) {
+      return res.status(400).json({ error: 'Please select at least one type of hangout' });
+    }
+
+    if (!preferredTimeOfDay?.length) {
+      return res.status(400).json({ error: 'Please select at least one preferred time of day' });
+    }
+
+    if (!preferredDays?.length) {
+      return res.status(400).json({ error: 'Please select at least one preferred day' });
+    }
+
+    if (!meetingPreference?.length) {
+      return res.status(400).json({ error: 'Please select at least one meeting preference' });
     }
 
     // Update user profile in database
@@ -35,11 +58,13 @@ router.post('/complete-profile', authenticateToken, async (req: AuthenticatedReq
         displayName,
         phoneNumber,
         school,
-        locationDetails,
+        neighborhood,
         priceRange,
-        meetingPreference,
         interests,
-        cuisinePreferences,
+        hangoutTypes,
+        preferredTimeOfDay,
+        preferredDays,
+        meetingPreference,
         profileCompleted: true,
         updatedAt: new Date()
       }

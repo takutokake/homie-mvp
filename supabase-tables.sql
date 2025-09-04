@@ -1,22 +1,31 @@
 -- Create tables for Homie application in Supabase
 -- Run this in your Supabase SQL Editor
 
+-- Drop existing tables first to ensure clean setup
+DROP TABLE IF EXISTS meetup_participants CASCADE;
+DROP TABLE IF EXISTS meetups CASCADE;
+DROP TABLE IF EXISTS user_connections CASCADE;
+DROP TABLE IF EXISTS sessions CASCADE;
+DROP TABLE IF EXISTS invites CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+
 -- Users table
-CREATE TABLE IF NOT EXISTS users (
+CREATE TABLE users (
     id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
     email TEXT UNIQUE NOT NULL,
     username TEXT UNIQUE NOT NULL,
     "passwordHash" TEXT,
     "googleId" TEXT UNIQUE,
     "displayName" TEXT NOT NULL,
-    "phoneNumber" TEXT,
-    "profilePictureUrl" TEXT,
+    "phoneNumber" TEXT NOT NULL,
     school TEXT,
-    "locationDetails" TEXT,
+    neighborhood TEXT,
     "priceRange" TEXT,
-    "meetingPreference" TEXT[] DEFAULT '{}',
     interests TEXT[] DEFAULT '{}',
-    "cuisinePreferences" TEXT[] DEFAULT '{}',
+    "hangoutTypes" TEXT[] DEFAULT '{}',
+    "preferredTimeOfDay" TEXT[] DEFAULT '{}',
+    "preferredDays" TEXT[] DEFAULT '{}',
+    "meetingPreference" TEXT[] DEFAULT '{}',
     "profileCompleted" BOOLEAN DEFAULT false,
     "isActive" BOOLEAN DEFAULT true,
     "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT now(),
@@ -25,7 +34,7 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 -- Invites table
-CREATE TABLE IF NOT EXISTS invites (
+CREATE TABLE invites (
     code TEXT PRIMARY KEY,
     "createdBy" TEXT NOT NULL,
     "maxUses" INTEGER DEFAULT 1,
@@ -38,7 +47,7 @@ CREATE TABLE IF NOT EXISTS invites (
 );
 
 -- Sessions table
-CREATE TABLE IF NOT EXISTS sessions (
+CREATE TABLE sessions (
     id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
     "userId" TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     "jwtId" TEXT UNIQUE NOT NULL,
@@ -47,7 +56,7 @@ CREATE TABLE IF NOT EXISTS sessions (
 );
 
 -- User connections table
-CREATE TABLE IF NOT EXISTS user_connections (
+CREATE TABLE user_connections (
     id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
     "user1Id" TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     "user2Id" TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -57,7 +66,7 @@ CREATE TABLE IF NOT EXISTS user_connections (
 );
 
 -- Meetups table
-CREATE TABLE IF NOT EXISTS meetups (
+CREATE TABLE meetups (
     id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
     "createdBy" TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     title TEXT NOT NULL,
@@ -73,7 +82,7 @@ CREATE TABLE IF NOT EXISTS meetups (
 );
 
 -- Meetup participants table
-CREATE TABLE IF NOT EXISTS meetup_participants (
+CREATE TABLE meetup_participants (
     id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
     "meetupId" TEXT NOT NULL REFERENCES meetups(id) ON DELETE CASCADE,
     "userId" TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -91,8 +100,7 @@ VALUES
     ('DEMO02', 'admin', 999, 0, true, 'test'),
     ('DEV001', 'admin', 999, 0, true, 'test'),
     ('HOMIE1', 'admin', 999, 0, true, 'test'),
-    ('INVITE', 'admin', 999, 0, true, 'test')
-ON CONFLICT (code) DO NOTHING;
+    ('INVITE', 'admin', 999, 0, true, 'test');
 
 -- Create updated_at trigger function
 CREATE OR REPLACE FUNCTION update_updated_at_column()
