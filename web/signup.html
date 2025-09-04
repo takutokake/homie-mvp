@@ -108,24 +108,12 @@
 <main class="flex flex-1 items-center justify-center py-16 px-4">
 <div class="w-full max-w-md space-y-8">
 <div class="text-center">
-<h2 class="text-3xl font-bold text-white">Create your account</h2>
-<p class="mt-2 text-gray-400">Join the community and start connecting.</p>
+<h2 class="text-3xl font-bold text-white">Complete your profile</h2>
+<p class="mt-2 text-gray-400">Tell us about yourself to get better matches.</p>
 </div>
 <form id="signup-form" class="space-y-6" method="POST">
-<div>
-<label class="sr-only" for="invite">Invite Code</label>
-<div class="flex gap-2">
-<input id="invite" name="invite" maxlength="6" placeholder="Invite code (6 chars)" 
-  class="form-input flex flex-1 min-w-0 resize-none overflow-hidden rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-base text-white placeholder:text-gray-500 focus:outline-none focus:ring-0 transition-all duration-300 uppercase" 
-  oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')" required/>
-<button id="verify-btn" type="button" class="verify-btn border px-3 py-2 rounded-lg text-sm font-medium">
-  Verify
-</button>
-</div>
-<p id="invite-hint" class="mt-2 text-xs text-gray-500">ask a friend for a code</p>
-</div>
 
-<!-- Basic Account Info -->
+<!-- Basic Profile Info -->
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 <div>
 <label class="sr-only" for="username">Username</label>
@@ -137,20 +125,9 @@
 </div>
 </div>
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-<div>
-<label class="sr-only" for="email">Email</label>
-<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-base text-white placeholder:text-gray-500 focus:outline-none focus:ring-0 transition-all duration-300" id="email" name="email" placeholder="Email address" required="" type="email"/>
-</div>
 <div>
 <label class="sr-only" for="phoneNumber">Phone Number</label>
 <input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-base text-white placeholder:text-gray-500 focus:outline-none focus:ring-0 transition-all duration-300" id="phoneNumber" name="phoneNumber" placeholder="Phone Number (optional)" type="tel"/>
-</div>
-</div>
-
-<div>
-<label class="sr-only" for="password">Password</label>
-<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-base text-white placeholder:text-gray-500 focus:outline-none focus:ring-0 transition-all duration-300" id="password" name="password" placeholder="Password (min 8 chars)" required="" type="password"/>
 </div>
 
 <!-- School & Location -->
@@ -224,13 +201,9 @@
 <input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-base text-white placeholder:text-gray-500 focus:outline-none focus:ring-0 transition-all duration-300" id="cuisinePreferences" name="cuisinePreferences" placeholder="Cuisine preferences (comma separated: italian, korean, mexican...)" type="text"/>
 </div>
 <div>
-<button id="submit-btn" class="primary-cta flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-full h-12 px-5 bg-[#FDAA25] text-[#1C160C] text-base font-bold leading-normal tracking-wide" type="submit" disabled>
-<span class="truncate">Sign Up</span>
+<button id="submit-btn" class="primary-cta flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-full h-12 px-5 bg-[#FDAA25] text-[#1C160C] text-base font-bold leading-normal tracking-wide" type="submit">
+<span class="truncate">Complete Profile</span>
 </form>
-<p class="text-center text-sm text-gray-500">
-Already have an account?
-<a class="font-medium text-[#FDAA25] hover:text-[#fbc256]" href="#" onclick="showLoginForm()">Sign in</a>
-</p>
 </div>
 </main>
 </div>
@@ -238,73 +211,19 @@ Already have an account?
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const inviteInput = document.getElementById('invite');
-const verifyBtn = document.getElementById('verify-btn');
 const submitBtn = document.getElementById('submit-btn');
-const hint = document.getElementById('invite-hint');
 
-// Initialize Supabase
-let supabase;
+// Get invite code from localStorage (set by login page)
+const inviteCode = localStorage.getItem('verifiedInviteCode');
 
-// Get Supabase config from backend
-async function initSupabase() {
-  try {
-    const response = await fetch('/api/auth/config');
-    const config = await response.json();
-    supabase = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
-  } catch (error) {
-    console.error('Failed to initialize Supabase:', error);
-  }
+if (!inviteCode) {
+  alert('No verified invite code found. Please start from the login page.');
+  window.location.href = '/web/login.html';
 }
 
-initSupabase();
-
-verifyBtn.addEventListener('click', async () => {
-  const code = inviteInput.value.trim();
-  if (!/^[A-Z0-9]{6}$/.test(code)) { 
-    hint.textContent = 'invalid format'; 
-    hint.className = 'mt-2 text-xs text-red-400';
-    return; 
-  }
-  
-  verifyBtn.textContent = 'Verifying...';
-  verifyBtn.disabled = true;
-  
-  try {
-    const res = await fetch('/api/invites/verify', {
-      method: 'POST', 
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ code })
-    });
-    const data = await res.json();
-    
-    if (data.valid) {
-      hint.textContent = `valid • ${data.remaining} use(s) left`;
-      hint.className = 'mt-2 text-xs text-green-400';
-      submitBtn.disabled = false;
-    } else {
-      hint.textContent = `not valid (${data.reason || 'unknown'})`;
-      hint.className = 'mt-2 text-xs text-red-400';
-      submitBtn.disabled = true;
-    }
-  } catch (error) {
-    hint.textContent = 'verification failed - try again';
-    hint.className = 'mt-2 text-xs text-red-400';
-    submitBtn.disabled = true;
-  }
-  
-  verifyBtn.textContent = 'Verify';
-  verifyBtn.disabled = false;
-});
-
-// Handle email signup with Supabase Auth
+// Handle profile completion
 document.getElementById('signup-form').addEventListener('submit', async (e) => {
   e.preventDefault();
-  
-  if (!supabase) {
-    alert('Authentication system not ready. Please refresh and try again.');
-    return;
-  }
   
   // Collect meeting preferences
   const meetingPreferences = Array.from(document.querySelectorAll('input[name="meetingPreference"]:checked'))
@@ -321,14 +240,11 @@ document.getElementById('signup-form').addEventListener('submit', async (e) => {
     .map(item => item.trim())
     .filter(item => item.length > 0);
   
-  const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value;
   const username = document.getElementById('username').value.trim();
-  const code = document.getElementById('invite').value.trim();
   
   const profileData = {
     username,
-    code,
+    code: inviteCode,
     displayName: document.getElementById('displayName').value.trim(),
     phoneNumber: document.getElementById('phoneNumber').value.trim() || null,
     school: document.getElementById('school').value,
@@ -339,159 +255,33 @@ document.getElementById('signup-form').addEventListener('submit', async (e) => {
     cuisinePreferences: cuisinePreferences
   };
   
-  submitBtn.textContent = 'Creating Account...';
+  submitBtn.textContent = 'Completing Profile...';
   submitBtn.disabled = true;
   
   try {
-    // First, create user with Supabase Auth
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          username,
-          display_name: profileData.displayName
-        }
-      }
-    });
-    
-    if (authError) {
-      throw new Error(authError.message);
-    }
-    
-    if (!authData.user) {
-      throw new Error('Failed to create user account');
-    }
-    
-    // Then create the user profile in our database
-    const res = await fetch('/api/auth/signup', {
+    const res = await fetch('/api/auth/complete-profile', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        ...profileData,
-        email
-        // No password needed since user is already created in Supabase
-      })
+      body: JSON.stringify(profileData)
     });
     
     const data = await res.json();
     
     if (res.ok) {
-      alert('Account created successfully! Please check your email to verify your account.');
-      location.href = '/web/'; // redirect to landing
+      localStorage.removeItem('verifiedInviteCode');
+      alert('Profile completed successfully! Welcome to Homie!');
+      window.location.href = '/web/';
     } else {
-      // If profile creation failed, we should clean up the Supabase user
-      await supabase.auth.signOut();
-      throw new Error(data.error || 'Profile creation failed');
+      throw new Error(data.error || 'Profile completion failed');
     }
   } catch (error) {
-    console.error('Signup error:', error);
-    alert(error.message || 'Sign up failed - please try again');
+    console.error('Profile completion error:', error);
+    alert(error.message || 'Profile completion failed - please try again');
     submitBtn.disabled = false;
-    submitBtn.innerHTML = '<span class="truncate">Sign Up</span>';
+    submitBtn.textContent = 'Complete Profile';
   }
 });
 
-// Google sign-in with Supabase Auth
-async function googleWithInvite() {
-  const code = inviteInput.value.trim();
-  if (!/^[A-Z0-9]{6}$/.test(code)) { 
-    hint.textContent = 'enter a valid invite first'; 
-    hint.className = 'mt-2 text-xs text-red-400';
-    return; 
-  }
-  
-  if (!supabase) {
-    alert('Authentication system not ready. Please refresh and try again.');
-    return;
-  }
-  
-  try {
-    // Store invite code in localStorage for OAuth callback
-    localStorage.setItem('pendingInviteCode', code);
-    
-    // Initiate Google OAuth with Supabase
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/web/signup.html?oauth=callback`
-      }
-    });
-    
-    if (error) {
-      console.error('OAuth error:', error);
-      alert('Failed to initiate Google sign-in');
-    }
-  } catch (error) {
-    console.error('Google sign-in error:', error);
-    alert('Failed to initiate Google sign-in');
-  }
-}
-
-// Handle OAuth callback
-async function handleOAuthCallback() {
-  const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('oauth') === 'callback') {
-    const inviteCode = localStorage.getItem('pendingInviteCode');
-    
-    if (!inviteCode) {
-      alert('Invite code missing. Please try signing up again.');
-      window.location.href = '/web/signup.html';
-      return;
-    }
-    
-    try {
-      // Get the current user from Supabase
-      const { data: { user }, error } = await supabase.auth.getUser();
-      
-      if (error || !user) {
-        throw new Error('Failed to get user information');
-      }
-      
-      // Send user data and invite code to backend
-      const response = await fetch('/api/auth/oauth-callback', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          user: user,
-          code: inviteCode
-        })
-      });
-      
-      const data = await response.json();
-      
-      if (response.ok) {
-        localStorage.removeItem('pendingInviteCode');
-        
-        if (data.needsProfileCompletion) {
-          // Redirect to profile completion
-          window.location.href = '/web/complete-profile.html';
-        } else {
-          // User already has complete profile
-          window.location.href = '/web/';
-        }
-      } else {
-        throw new Error(data.error || 'OAuth callback failed');
-      }
-    } catch (error) {
-      console.error('OAuth callback error:', error);
-      alert(error.message || 'Failed to complete Google sign-in');
-      localStorage.removeItem('pendingInviteCode');
-      window.location.href = '/web/signup.html';
-    }
-  }
-}
-
-// Check for OAuth callback on page load
-if (window.location.search.includes('oauth=callback')) {
-  // Wait for Supabase to initialize
-  setTimeout(handleOAuthCallback, 1000);
-}
-
-function showLoginForm() {
-  // TODO: Implement login form toggle or redirect to login page
-  alert('Login functionality coming soon!');
-}
 </script>
 
-</body></html
+</body></html>
