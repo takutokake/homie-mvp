@@ -25,11 +25,26 @@ router.post('/', authenticateToken, async (req: AuthenticatedRequest, res: Respo
         return res.status(400).json({ error: 'User already exists' });
       }
 
+      // Extract invite code from request
+      const { inviteCode, ...profileData } = req.body;
+      if (!inviteCode) {
+        return res.status(400).json({ error: 'Invite code is required for new signups' });
+      }
+
+      // Get invite details
+      const invite = await prisma.invite.findUnique({
+        where: { code: inviteCode },
+        select: { createdByEmail: true }
+      });
+
+      // Create new user with invite tracking
       const newUser = await prisma.user.create({
         data: {
-          ...req.body,
+          ...profileData,
           isActive: true,
-          profileCompleted: true
+          profileCompleted: true,
+          inviteCode: inviteCode,
+          invitedBy: invite?.createdByEmail
         }
       });
       req.userId = newUser.id;
