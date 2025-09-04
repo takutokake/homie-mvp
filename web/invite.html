@@ -6,6 +6,7 @@
 <title>Homie - Enter Invite Code</title>
 <link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="/web/js/supabase-config.js"></script>
 <style type="text/tailwindcss">
         :root {
             --homie-orange: #FDAA25;
@@ -155,15 +156,12 @@ verifyBtn.addEventListener('click', async () => {
   verifyBtn.disabled = true;
   
   try {
-    const res = await fetch('/api/verify-invite', {
-      method: 'POST', 
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ code })
-    });
-    const data = await res.json();
+    const codeUpper = code.toUpperCase();
     
-    if (data.valid) {
-      hint.textContent = `valid • ${data.remaining || 999} use(s) left`;
+    // Check test codes first
+    const testCodes = ['TEST01', 'TEST02', 'DEMO01', 'DEMO02', 'DEV001', 'HOMIE1', 'INVITE'];
+    if (testCodes.includes(codeUpper)) {
+      hint.textContent = `valid • 999 use(s) left`;
       hint.className = 'mt-2 text-xs text-green-400';
       
       // Store the verified code and redirect to login page
@@ -171,10 +169,54 @@ verifyBtn.addEventListener('click', async () => {
       setTimeout(() => {
         window.location.href = '/web/login.html';
       }, 1000);
-    } else {
-      hint.textContent = `not valid (${data.reason || 'unknown'})`;
-      hint.className = 'mt-2 text-xs text-red-400';
+      return;
     }
+    
+    // Query Supabase for real invite codes
+    const invites = await supabase.query('invites', {
+      'code': `eq.${codeUpper}`
+    });
+    
+    if (invites.length === 0) {
+      hint.textContent = 'invite code not found';
+      hint.className = 'mt-2 text-xs text-red-400';
+      return;
+    }
+    
+    const invite = invites[0];
+    
+    // Check if invite is active
+    if (!invite.is_active) {
+      hint.textContent = 'invite code is inactive';
+      hint.className = 'mt-2 text-xs text-red-400';
+      return;
+    }
+    
+    // Check if invite has expired
+    if (invite.expires_at && new Date(invite.expires_at) < new Date()) {
+      hint.textContent = 'invite code has expired';
+      hint.className = 'mt-2 text-xs text-red-400';
+      return;
+    }
+    
+    // Check if invite has remaining uses
+    if (invite.used_count >= invite.max_uses) {
+      hint.textContent = 'invite code has been fully used';
+      hint.className = 'mt-2 text-xs text-red-400';
+      return;
+    }
+    
+    // Valid invite
+    const remaining = invite.max_uses - invite.used_count;
+    hint.textContent = `valid • ${remaining} use(s) left`;
+    hint.className = 'mt-2 text-xs text-green-400';
+    
+    // Store the verified code and redirect to login page
+    localStorage.setItem('verifiedInviteCode', code);
+    setTimeout(() => {
+      window.location.href = '/web/login.html';
+    }, 1000);
+    
   } catch (error) {
     hint.textContent = 'verification failed - try again';
     hint.className = 'mt-2 text-xs text-red-400';
