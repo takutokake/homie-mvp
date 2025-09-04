@@ -191,7 +191,7 @@ document.getElementById('google-btn').addEventListener('click', async () => {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/login.html?oauth=callback`
+        redirectTo: `https://homie-mvp-101.vercel.app/login.html?oauth=callback`
       }
     });
     

@@ -15,6 +15,29 @@ router.get('/config', (req, res) => {
   });
 });
 
+// Database verification endpoint
+router.get('/db-status', async (req, res) => {
+  try {
+    // Test database connection
+    const userCount = await prisma.user.count();
+    const inviteCount = await prisma.invite.count();
+    
+    res.json({
+      status: 'connected',
+      userCount,
+      inviteCount,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Database connection error:', error);
+    res.status(500).json({
+      status: 'error',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // Signup with invite code validation
 router.post('/signup', signupLimit, async (req, res) => {
   try {
