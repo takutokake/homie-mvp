@@ -34,7 +34,7 @@ router.post('/', authenticateToken, async (req: AuthenticatedRequest, res: Respo
       // Get invite details
       const invite = await prisma.invite.findUnique({
         where: { code: inviteCode },
-        select: { createdByEmail: true }
+        select: { createdBy: true }
       });
 
       // Create new user with invite tracking
@@ -44,7 +44,7 @@ router.post('/', authenticateToken, async (req: AuthenticatedRequest, res: Respo
           isActive: true,
           profileCompleted: true,
           inviteCode: inviteCode,
-          invitedBy: invite?.createdByEmail
+          invitedBy: invite?.createdBy
         }
       });
       req.userId = newUser.id;
