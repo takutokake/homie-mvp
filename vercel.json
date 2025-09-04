@@ -7,10 +7,6 @@
       "config": {
         "includeFiles": ["prisma/schema.prisma"]
       }
-    },
-    {
-      "src": "web/**",
-      "use": "@vercel/static"
     }
   ],
   "routes": [
@@ -19,24 +15,13 @@
       "dest": "/api/server.ts"
     },
     {
-      "src": "/web/(.*)",
+      "src": "/(.*)",
       "dest": "/web/$1"
-    },
-    {
-      "src": "/signup.html",
-      "dest": "/web/signup.html"
-    },
-    {
-      "src": "/complete-profile.html",
-      "dest": "/web/complete-profile.html"
-    },
-    {
-      "src": "/login.html",
-      "dest": "/web/login.html"
-    },
-    {
-      "src": "/",
-      "dest": "/web/index.html"
     }
-  ]
+  ],
+  "functions": {
+    "api/server.ts": {
+      "maxDuration": 30
+    }
+  }
 }
