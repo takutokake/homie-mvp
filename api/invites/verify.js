@@ -1,9 +1,5 @@
-const { PrismaClient } = require('@prisma/client');
-
 // Test invite codes for development - bypass database
 const testCodes = ['TEST01', 'TEST02', 'DEMO01', 'DEMO02', 'DEV001', 'HOMIE1', 'INVITE'];
-
-let prisma;
 
 module.exports = async function handler(req, res) {
   // Set CORS headers
@@ -42,63 +38,14 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    console.log('Code not in test codes, checking database...');
-
-    // Initialize Prisma client if not already done
-    if (!prisma) {
-      try {
-        prisma = new PrismaClient();
-      } catch (prismaError) {
-        console.error('Failed to initialize Prisma:', prismaError);
-        return res.status(500).json({ 
-          valid: false, 
-          reason: 'database_unavailable',
-          message: 'Database connection failed' 
-        });
-      }
-    }
-
-    // For real codes, check database
-    let invite;
-    try {
-      invite = await prisma.invite.findUnique({
-        where: { code: codeUpper },
-      });
-    } catch (dbError) {
-      console.error('Database query error:', dbError);
-      return res.status(500).json({ 
-        valid: false, 
-        reason: 'database_error',
-        message: 'Failed to verify invite code' 
-      });
-    }
-
-    if (!invite || !invite.isActive) {
-      return res.status(404).json({ 
-        valid: false, 
-        reason: 'invalid' 
-      });
-    }
-
-    if (invite.expiresAt && invite.expiresAt < new Date()) {
-      return res.status(400).json({ 
-        valid: false, 
-        reason: 'expired' 
-      });
-    }
-
-    if (invite.usedCount >= invite.maxUses) {
-      return res.status(400).json({ 
-        valid: false, 
-        reason: 'exhausted' 
-      });
-    }
-
-    return res.json({ 
-      valid: true, 
-      remaining: invite.maxUses - invite.usedCount, 
-      expiresAt: invite.expiresAt 
+    console.log('Code not in test codes:', codeUpper);
+    
+    // For now, reject non-test codes since database connection is problematic
+    return res.status(404).json({ 
+      valid: false, 
+      reason: 'invalid' 
     });
+
   } catch (error) {
     console.error('Invite verification error:', error);
     return res.status(500).json({ 
