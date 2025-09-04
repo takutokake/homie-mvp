@@ -6,7 +6,7 @@
 <title>Homie - Login</title>
 <link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script src="/web/js/supabase-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style type="text/tailwindcss">
         :root {
             --homie-orange: #FDAA25;
@@ -98,246 +98,202 @@
 </div>
 </header>
 <main class="flex flex-1 items-center justify-center py-16 px-4">
-<div class="w-full max-w-md space-y-8">
-<div class="text-center">
-<h2 class="text-3xl font-bold text-white">Welcome to Homie</h2>
-<p class="mt-2 text-gray-400">Sign in or create your account to continue.</p>
-</div>
-
-<div class="space-y-6">
-<!-- Google OAuth Button -->
-<button type="button" id="google-btn" class="flex w-full items-center justify-center gap-3 rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-white hover:bg-[#2a2113] transition-all duration-300">
-  <img src="https://www.google.com/favicon.ico" alt="Google" class="w-5 h-5"/>
-  Continue with Google
-</button>
-
-<div class="relative">
-  <div class="absolute inset-0 flex items-center">
-    <div class="w-full border-t border-[#4A3C21]"></div>
+<div class="w-full max-w-md">
+  <!-- Toggle Buttons -->
+  <div class="flex mb-8 bg-[#231C10] rounded-lg p-1">
+    <button id="signin-tab" class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 text-gray-400 hover:text-white">
+      Sign In
+    </button>
+    <button id="signup-tab" class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 bg-[#FDAA25] text-[#1C160C]">
+      Sign Up
+    </button>
   </div>
-  <div class="relative flex justify-center text-sm">
-    <span class="px-2 bg-[#1C160C] text-gray-400">or</span>
+
+  <!-- Sign Up Form (Default) -->
+  <div id="signup-form" class="space-y-6">
+    <div class="text-center">
+      <h2 class="text-3xl font-bold text-[#FDAA25] mb-8">Sign Up</h2>
+    </div>
+
+    <div class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-300 mb-2" for="signup-email">
+          Email <span class="text-red-500">*</span>
+        </label>
+        <input 
+          class="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-50 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#FDAA25] focus:border-transparent" 
+          id="signup-email" 
+          type="email" 
+          placeholder="Enter your email" 
+          required
+        />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-300 mb-2" for="signup-password">
+          Password <span class="text-red-500">*</span>
+        </label>
+        <input 
+          class="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-50 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#FDAA25] focus:border-transparent" 
+          id="signup-password" 
+          type="password" 
+          placeholder="Enter your password" 
+          required
+        />
+      </div>
+
+      <button id="signup-btn" class="w-full py-3 px-4 bg-[#FDAA25] text-white font-semibold rounded-lg hover:bg-[#e6961f] transition-colors duration-200">
+        Sign Up
+      </button>
+
+      <div class="relative my-6">
+        <div class="absolute inset-0 flex items-center">
+          <div class="w-full border-t border-gray-600"></div>
+        </div>
+        <div class="relative flex justify-center text-sm">
+          <span class="px-2 bg-[#1C160C] text-gray-400">or</span>
+        </div>
+      </div>
+
+      <button id="google-signup-btn" class="w-full py-3 px-4 border border-gray-300 bg-white text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors duration-200 flex items-center justify-center gap-3">
+        <svg class="w-5 h-5" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        </svg>
+        Sign up with Google
+      </button>
+    </div>
+
+    <div class="text-center">
+      <p class="text-sm text-gray-400">
+        Already have an account? 
+        <button id="switch-to-signin" class="font-medium text-[#FDAA25] hover:text-[#fbc256]">Sign In</button>
+      </p>
+    </div>
   </div>
-</div>
 
-<!-- Email/Password Form -->
-<form id="auth-form" class="space-y-4">
-<div>
-<label class="sr-only" for="email">Email</label>
-<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-base text-white placeholder:text-gray-500 focus:outline-none focus:ring-0 transition-all duration-300" 
-  id="email" name="email" placeholder="Email address" required type="email"/>
-</div>
+  <!-- Sign In Form -->
+  <div id="signin-form" class="space-y-6 hidden">
+    <div class="text-center">
+      <h2 class="text-3xl font-bold text-[#FDAA25] mb-8">Sign In</h2>
+    </div>
 
-<div>
-<label class="sr-only" for="password">Password</label>
-<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-base text-white placeholder:text-gray-500 focus:outline-none focus:ring-0 transition-all duration-300" 
-  id="password" name="password" placeholder="Password" required type="password"/>
-</div>
+    <div class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-300 mb-2" for="signin-email">
+          Email <span class="text-red-500">*</span>
+        </label>
+        <input 
+          class="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-50 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#FDAA25] focus:border-transparent" 
+          id="signin-email" 
+          type="email" 
+          placeholder="Enter your email" 
+          required
+        />
+      </div>
 
-<div class="flex gap-2">
-<button id="signin-btn" type="button" class="flex-1 primary-cta flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-[#4A3C21] text-white text-base font-bold leading-normal tracking-wide border border-[#FDAA25]">
-  <span class="truncate">Sign In</span>
-</button>
-<button id="signup-btn" type="button" class="flex-1 primary-cta flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-[#FDAA25] text-[#1C160C] text-base font-bold leading-normal tracking-wide">
-  <span class="truncate">Sign Up</span>
-</button>
-</div>
-</form>
+      <div>
+        <label class="block text-sm font-medium text-gray-300 mb-2" for="signin-password">
+          Password <span class="text-red-500">*</span>
+        </label>
+        <input 
+          class="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-50 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#FDAA25] focus:border-transparent" 
+          id="signin-password" 
+          type="password" 
+          placeholder="Enter your password" 
+          required
+        />
+      </div>
 
-<div class="text-center">
-<p class="text-sm text-gray-500">
-Need a different invite code? 
-<a class="font-medium text-[#FDAA25] hover:text-[#fbc256]" href="/invite.html">Go back</a>
-</p>
-</div>
-</div>
+      <button id="signin-btn" class="w-full py-3 px-4 bg-[#FDAA25] text-white font-semibold rounded-lg hover:bg-[#e6961f] transition-colors duration-200">
+        Sign In
+      </button>
+
+      <div class="relative my-6">
+        <div class="absolute inset-0 flex items-center">
+          <div class="w-full border-t border-gray-600"></div>
+        </div>
+        <div class="relative flex justify-center text-sm">
+          <span class="px-2 bg-[#1C160C] text-gray-400">or</span>
+        </div>
+      </div>
+
+      <button id="google-signin-btn" class="w-full py-3 px-4 border border-gray-300 bg-white text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors duration-200 flex items-center justify-center gap-3">
+        <svg class="w-5 h-5" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        </svg>
+        Sign in with Google
+      </button>
+    </div>
+
+    <div class="text-center">
+      <p class="text-sm text-gray-400">
+        Don't have an account? 
+        <button id="switch-to-signup" class="font-medium text-[#FDAA25] hover:text-[#fbc256]">Sign Up</button>
+      </p>
+    </div>
+  </div>
 </div>
 </main>
 </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// Initialize Supabase after config loads
-let supabase = null;
+// Initialize Supabase with your credentials
+const supabase = window.supabase.createClient(
+  'https://cfmegjvcnsbuyiwvmzft.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmbWVnanZjbnNidXlpd3ZtemZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY4NzgzNDUsImV4cCI6MjA3MjQ1NDM0NX0.8d2PW5KY1vP2AsYHWUxmHYZydvl5hToanYX8YQV8QgM'
+);
 
-async function initializeSupabase() {
-  if (supabase) return supabase; // Already initialized
-  
-  // Config should be available immediately now
-  if (!window.SUPABASE_CONFIG) {
-    console.error('SUPABASE_CONFIG not found');
-    return null;
-  }
-  
-  if (!window.SUPABASE_CONFIG.url || !window.SUPABASE_CONFIG.anonKey) {
-    console.error('Please update supabase-config.js with your actual Supabase credentials');
-    alert('Supabase configuration missing. Please contact support.');
-    return null;
-  }
-  
-  if (window.SUPABASE_CONFIG.url.includes('your-project') || window.SUPABASE_CONFIG.anonKey.includes('your-supabase')) {
-    console.error('Placeholder Supabase values detected. Please update with real credentials.');
-    alert('Please update Supabase configuration with your actual project values.');
-    return null;
-  }
-  
-  try {
-    supabase = window.supabase.createClient(
-      window.SUPABASE_CONFIG.url,
-      window.SUPABASE_CONFIG.anonKey,
-      {
-        auth: {
-          autoRefreshToken: true,
-          persistSession: true,
-          detectSessionInUrl: true
-        }
-      }
-    );
-    
-    console.log('Supabase initialized successfully');
-    return supabase;
-  } catch (error) {
-    console.error('Failed to create Supabase client:', error);
-    return null;
-  }
+console.log('Supabase initialized');
+
+// Tab switching functionality
+const signinTab = document.getElementById('signin-tab');
+const signupTab = document.getElementById('signup-tab');
+const signinForm = document.getElementById('signin-form');
+const signupForm = document.getElementById('signup-form');
+
+function showSignIn() {
+  signinTab.classList.add('bg-[#FDAA25]', 'text-[#1C160C]');
+  signinTab.classList.remove('text-gray-400');
+  signupTab.classList.remove('bg-[#FDAA25]', 'text-[#1C160C]');
+  signupTab.classList.add('text-gray-400');
+  signinForm.classList.remove('hidden');
+  signupForm.classList.add('hidden');
 }
 
-// Initialize on page load
-initializeSupabase();
-
-// Check if user has verified invite code
-const verifiedCode = localStorage.getItem('verifiedInviteCode');
-if (!verifiedCode) {
-  alert('Please verify your invite code first.');
-  window.location.href = '/invite.html';
+function showSignUp() {
+  signupTab.classList.add('bg-[#FDAA25]', 'text-[#1C160C]');
+  signupTab.classList.remove('text-gray-400');
+  signinTab.classList.remove('bg-[#FDAA25]', 'text-[#1C160C]');
+  signinTab.classList.add('text-gray-400');
+  signupForm.classList.remove('hidden');
+  signinForm.classList.add('hidden');
 }
 
-// Google OAuth
-document.getElementById('google-btn').addEventListener('click', async () => {
-  // Wait for Supabase to initialize if not ready
-  if (!supabase) {
-    await initializeSupabase();
-  }
-  
-  if (!supabase) {
-    alert('Authentication system not ready. Please refresh and try again.');
-    return;
-  }
-  
-  try {
-    const inviteCode = localStorage.getItem('verifiedInviteCode');
-    if (!inviteCode) {
-      alert('Please verify your invite code first');
-      window.location.href = '/invite.html';
-      return;
-    }
+// Event listeners for tabs
+signinTab.addEventListener('click', showSignIn);
+signupTab.addEventListener('click', showSignUp);
+document.getElementById('switch-to-signin').addEventListener('click', showSignIn);
+document.getElementById('switch-to-signup').addEventListener('click', showSignIn);
 
-    // Generate a random state value that includes the invite code
-    const randomState = Math.random().toString(36).substring(2);
-    const state = `${randomState}:${inviteCode}`;
-    sessionStorage.setItem('oauthState', state);
-    sessionStorage.setItem('pendingInviteCode', inviteCode);
-
-    // Use production URL on Vercel, localhost for development
-    const isProduction = window.location.hostname.includes('vercel.app');
-    const baseUrl = isProduction
-      ? 'https://homie-mvp-101.vercel.app'
-      : 'http://localhost:3002';
-    const redirectUrl = `${baseUrl}/auth/v1/callback`;
-    console.log('OAuth configuration:', { redirectUrl, state, inviteCode });
-
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: redirectUrl,
-        queryParams: {
-          access_type: 'offline',
-          prompt: 'consent',
-          state // Pass the full state parameter with random value and invite code
-        }
-      }
-    });
-    
-    if (error) {
-      console.error('OAuth error:', error);
-      alert('Failed to initiate Google sign-in');
-    }
-  } catch (error) {
-    console.error('Google sign-in error:', error);
-    alert('Failed to initiate Google sign-in');
-  }
-});
-
-// Sign In
-document.getElementById('signin-btn').addEventListener('click', async () => {
-  const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value;
-  
-  if (!email || !password) {
-    alert('Please enter both email and password');
-    return;
-  }
-  
-  // Wait for Supabase to initialize if not ready
-  if (!supabase) {
-    await initializeSupabase();
-  }
-  
-  if (!supabase) {
-    alert('Authentication system not ready. Please refresh and try again.');
-    return;
-  }
-  
-  const btn = document.getElementById('signin-btn');
-  btn.textContent = 'Signing In...';
-  btn.disabled = true;
-  
-  try {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
-    
-    if (error) {
-      throw new Error(error.message);
-    }
-    
-    // Clear the invite code since they're signing in (not signing up)
-    localStorage.removeItem('verifiedInviteCode');
-    
-    // Redirect to dashboard or home
-    window.location.href = '/';
-  } catch (error) {
-    console.error('Sign in error:', error);
-    alert(error.message || 'Sign in failed - please try again');
-    btn.textContent = 'Sign In';
-    btn.disabled = false;
-  }
-});
-
-// Sign Up
+// Email/Password Sign Up
 document.getElementById('signup-btn').addEventListener('click', async () => {
-  const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value;
+  const email = document.getElementById('signup-email').value.trim();
+  const password = document.getElementById('signup-password').value;
   
   if (!email || !password) {
     alert('Please enter both email and password');
     return;
   }
   
-  if (password.length < 8) {
-    alert('Password must be at least 8 characters');
-    return;
-  }
-  
-  // Wait for Supabase to initialize if not ready
-  if (!supabase) {
-    await initializeSupabase();
-  }
-  
-  if (!supabase) {
-    alert('Authentication system not ready. Please refresh and try again.');
+  if (password.length < 6) {
+    alert('Password must be at least 6 characters');
     return;
   }
   
@@ -355,123 +311,114 @@ document.getElementById('signup-btn').addEventListener('click', async () => {
       throw new Error(error.message);
     }
     
-    if (!data.user) {
-      throw new Error('Failed to create user account');
-    }
+    console.log('User created:', data.user);
+    alert('Account created successfully! Please check your email for verification.');
     
-    // Store email for profile completion
-    localStorage.setItem('signupEmail', email);
+    // Clear form
+    document.getElementById('signup-email').value = '';
+    document.getElementById('signup-password').value = '';
     
-    // Redirect to success page
-    window.location.href = '/web/success.html';
+    // Switch to sign in
+    showSignIn();
+    
   } catch (error) {
     console.error('Sign up error:', error);
     alert(error.message || 'Sign up failed - please try again');
+  } finally {
     btn.textContent = 'Sign Up';
     btn.disabled = false;
   }
 });
 
-// Handle OAuth callback
-async function handleOAuthCallback() {
-  console.log('Starting OAuth callback handling...');
-  const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('oauth') === 'callback') {
-    try {
-      const { data: { user }, error } = await supabase.auth.getUser();
-      console.log('Auth user:', user);
-      console.log('Auth error:', error);
-      
-      if (error || !user) {
-        console.error('Failed to get user:', error);
-        alert('Failed to authenticate with Google');
-        window.location.href = '/web/login.html';
-        return;
-      }
-
-      // Extract invite code from state parameter
-      const returnedState = urlParams.get('state');
-      if (!returnedState) {
-        console.error('No state parameter returned');
-        alert('Missing security verification. Please try again.');
-        return;
-      }
-
-      const [stateValue, stateInviteCode] = returnedState.split(':');
-      const savedState = sessionStorage.getItem('oauthState');
-      const savedInviteCode = sessionStorage.getItem('pendingInviteCode');
-
-      if (!savedState || returnedState !== savedState) {
-        console.error('State mismatch:', { returnedState, savedState });
-        alert('Security verification failed. Please try again.');
-        return;
-      }
-
-      if (!stateInviteCode || stateInviteCode !== savedInviteCode) {
-        console.error('Invite code mismatch:', { stateInviteCode, savedInviteCode });
-        alert('Invite code verification failed. Please try again.');
-        return;
-      }
-
-      const session = await supabase.auth.getSession();
-      if (session?.data?.session) {
-        const user = session.data.session.user;
-        const inviteCode = sessionStorage.getItem('pendingInviteCode');
-        
-        if (!inviteCode) {
-          console.error('No invite code found in session storage');
-          alert('Missing invite code. Please start over from the invite page.');
-          window.location.href = '/web/invite.html';
-          return;
-        }
-
-        try {
-          console.log('Sending OAuth callback to backend:', { user, inviteCode });
-          const response = await fetch('/api/auth/oauth-callback', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              user,
-              code: inviteCode
-            })
-          });
-
-          if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-          }
-
-          const data = await response.json();
-          console.log('OAuth callback response:', data);
-          
-          // Clear OAuth state and invite code from session storage
-          sessionStorage.removeItem('oauthState');
-          sessionStorage.removeItem('pendingInviteCode');
-          
-          // Always redirect to success page after signup
-          window.location.href = '/web/success.html';
-        } catch (error) {
-          console.error('Error in OAuth callback:', error);
-          alert('Failed to complete sign in: ' + error.message);
-        }
-      } else {
-        console.error('No session found after OAuth callback');
-        alert('Failed to authenticate with Google. Please try again.');
-      }
-    } catch (error) {
-      console.error('OAuth callback error:', error);
-      alert(error.message || 'Failed to complete Google sign-in');
-      window.location.href = '/login.html';
-    }
+// Email/Password Sign In
+document.getElementById('signin-btn').addEventListener('click', async () => {
+  const email = document.getElementById('signin-email').value.trim();
+  const password = document.getElementById('signin-password').value;
+  
+  if (!email || !password) {
+    alert('Please enter both email and password');
+    return;
   }
-}
+  
+  const btn = document.getElementById('signin-btn');
+  btn.textContent = 'Signing In...';
+  btn.disabled = true;
+  
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+    
+    if (error) {
+      throw new Error(error.message);
+    }
+    
+    console.log('User signed in:', data.user);
+    alert('Successfully signed in!');
+    window.location.href = '/';
+    
+  } catch (error) {
+    console.error('Sign in error:', error);
+    alert(error.message || 'Sign in failed - please try again');
+  } finally {
+    btn.textContent = 'Sign In';
+    btn.disabled = false;
+  }
+});
 
-// Check for OAuth callback on page load
-if (window.location.search.includes('oauth=callback')) {
-  setTimeout(handleOAuthCallback, 1000);
-}
+// Google OAuth Sign Up
+document.getElementById('google-signup-btn').addEventListener('click', async () => {
+  try {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin + '/login.html'
+      }
+    });
+    
+    if (error) {
+      throw new Error(error.message);
+    }
+    
+  } catch (error) {
+    console.error('Google sign up error:', error);
+    alert('Google sign up failed - please try again');
+  }
+});
+
+// Google OAuth Sign In
+document.getElementById('google-signin-btn').addEventListener('click', async () => {
+  try {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin + '/login.html'
+      }
+    });
+    
+    if (error) {
+      throw new Error(error.message);
+    }
+    
+  } catch (error) {
+    console.error('Google sign in error:', error);
+    alert('Google sign in failed - please try again');
+  }
+});
+
+// Check if user is already logged in
+supabase.auth.onAuthStateChange((event, session) => {
+  console.log('Auth state changed:', event, session);
+  
+  if (event === 'SIGNED_IN' && session) {
+    console.log('User is signed in:', session.user);
+    // Redirect to dashboard or home page
+    setTimeout(() => {
+      window.location.href = '/';
+    }, 1000);
+  }
+});
 </script>
 
 </body></html>

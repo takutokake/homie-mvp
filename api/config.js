@@ -1,6 +1,13 @@
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://cfmegjvcnsbuyiwvmzft.supabase.co'
+];
+
 module.exports = (req, res) => {
-  // Set CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
@@ -13,8 +20,15 @@ module.exports = (req, res) => {
   }
 
   // Return Supabase configuration from environment variables
-  return res.status(200).json({
+  const config = {
     supabaseUrl: process.env.SUPABASE_URL,
     supabaseAnonKey: process.env.SUPABASE_ANON_KEY
-  });
+  };
+
+  // Validate config
+  if (!config.supabaseUrl || !config.supabaseAnonKey) {
+    return res.status(500).json({ error: 'Missing Supabase configuration' });
+  }
+
+  return res.status(200).json(config);
 };

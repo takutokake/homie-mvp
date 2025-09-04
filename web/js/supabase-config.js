@@ -1,11 +1,15 @@
-// Supabase configuration
-// IMPORTANT: Replace these with your actual Supabase values from your .env file
-window.SUPABASE_CONFIG = {
-  url: 'https://your-project.supabase.co',  // Replace with SUPABASE_URL from .env
-  anonKey: 'your-supabase-anon-key'         // Replace with SUPABASE_ANON_KEY from .env
-};
+// Initialize empty Supabase config
+window.SUPABASE_CONFIG = { url: '', anonKey: '' };
 
-console.log('Supabase config initialized');
+// Load config from API
+fetch('/api/config')
+  .then(response => response.json())
+  .then(config => {
+    window.SUPABASE_CONFIG.url = config.supabaseUrl;
+    window.SUPABASE_CONFIG.anonKey = config.supabaseAnonKey;
+    console.log('Supabase config loaded');
+  })
+  .catch(error => console.error('Config load error:', error));
 
 // Create Supabase client for invite verification
 const supabase = {

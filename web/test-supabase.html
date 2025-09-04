@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Supabase Connection</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/js/supabase-config.js"></script>
+</head>
+<body>
+    <h1>Supabase Connection Test</h1>
+    <div>
+        <p>Status: <span id="status">Loading configuration...</span></p>
+        <button onclick="testConnection()">Test Connection</button>
+        <button onclick="testAuth()">Test Auth</button>
+    </div>
+    
+    <div id="results" style="margin-top: 20px; padding: 10px; background: #f0f0f0;"></div>
+
+    <script>
+        let supabase;
+        
+        // Wait for config to load
+        const configCheck = setInterval(() => {
+            if (window.SUPABASE_CONFIG.url && window.SUPABASE_CONFIG.anonKey) {
+                document.getElementById('status').textContent = 'Configuration loaded';
+                clearInterval(configCheck);
+            }
+        }, 100);
+        
+        function testConnection() {
+            try {
+                const { url, anonKey } = window.SUPABASE_CONFIG;
+                supabase = window.supabase.createClient(url, anonKey);
+                document.getElementById('results').innerHTML = 'Supabase client created successfully!';
+            } catch (error) {
+                document.getElementById('results').innerHTML = 'Error: ' + error.message;
+            }
+        }
+        
+        async function testAuth() {
+            if (!supabase) {
+                document.getElementById('results').innerHTML = 'Please test connection first';
+                return;
+            }
+            
+            try {
+                const { data, error } = await supabase.auth.signUp({
+                    email: 'test@example.com',
+                    password: 'testpassword123'
+                });
+                
+                if (error) {
+                    document.getElementById('results').innerHTML = 'Auth test failed: ' + error.message;
+                } else {
+                    document.getElementById('results').innerHTML = 'Auth test successful! (You can ignore the test signup)';
+                }
+            } catch (error) {
+                document.getElementById('results').innerHTML = 'Auth test error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

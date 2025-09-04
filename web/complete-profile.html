@@ -251,4 +251,17 @@
                     alert('Profile completed successfully!');
                     window.location.href = '/web/thank-you.html';
                 } else {
-                    alert(data.error 
+                    alert(data.error || 'Profile completion failed');
+                    completeBtn.disabled = false;
+                    completeBtn.textContent = 'Complete Profile';
+                }
+            } catch (error) {
+                console.error('Profile completion error:', error);
+                alert(error.message || 'Network error - please try again');
+                completeBtn.disabled = false;
+                completeBtn.textContent = 'Complete Profile';
+            }
+        });
+    </script>
+</body>
+</html>
