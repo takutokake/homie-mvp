@@ -1,7 +1,7 @@
 {
   "rewrites": [
     { "source": "/auth/v1/callback", "destination": "/api/auth/callback" },
-    { "source": "/api/:path*", "destination": "/api/:path*" },
+    { "source": "/api/invites/verify", "destination": "/api/invites/verify" },
     { "source": "/invite.html", "destination": "/web/invite.html" },
     { "source": "/login.html", "destination": "/web/login.html" },
     { "source": "/profile.html", "destination": "/web/profile.html" },
@@ -11,7 +11,7 @@
     { "source": "/:path*", "destination": "/web/:path*" }
   ],
   "functions": {
-    "api/**/*": {
+    "api/invites/verify.ts": {
       "memory": 1024,
       "maxDuration": 10
     }
