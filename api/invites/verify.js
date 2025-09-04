@@ -21,13 +21,16 @@ module.exports = async function handler(req, res) {
   }
 
   try {
+    console.log('Received request body:', req.body);
     const { code } = req.body;
     
     if (!code) {
+      console.log('No code provided in request');
       return res.status(400).json({ valid: false, reason: 'missing_code' });
     }
 
     const codeUpper = code.toUpperCase();
+    console.log('Processing invite code:', codeUpper);
 
     // Check test codes first - always allow these
     if (testCodes.includes(codeUpper)) {
@@ -38,6 +41,8 @@ module.exports = async function handler(req, res) {
         expiresAt: null
       });
     }
+
+    console.log('Code not in test codes, checking database...');
 
     // Initialize Prisma client if not already done
     if (!prisma) {
