@@ -44,9 +44,8 @@ router.post('/signup', signupLimit, async (req, res) => {
     const validatedData = signupSchema.parse(req.body);
     const { 
       username, email, code,
-      displayName, phoneNumber, school, neighborhood, 
-      priceRange, meetingPreference, interests,
-      hangoutTypes, preferredTimeOfDay, preferredDays
+      displayName, phoneNumber, school, locationDetails, 
+      priceRange, meetingPreference, interests, cuisinePreferences 
     } = validatedData;
 
     const codeUpper = code.toUpperCase();
@@ -100,13 +99,11 @@ router.post('/signup', signupLimit, async (req, res) => {
           displayName,
           phoneNumber,
           school,
-          neighborhood,
+          locationDetails,
           priceRange,
-          interests,
-          hangoutTypes,
-          preferredTimeOfDay,
-          preferredDays,
           meetingPreference,
+          interests,
+          cuisinePreferences,
           profileCompleted: true,
           lastLogin: new Date()
         }
@@ -128,6 +125,7 @@ router.post('/signup', signupLimit, async (req, res) => {
           username: user.username,
           displayName: user.displayName,
           school: user.school,
+          locationDetails: user.locationDetails,
           profileCompleted: user.profileCompleted
         }
       });
@@ -143,6 +141,7 @@ router.post('/signup', signupLimit, async (req, res) => {
             username,
             displayName,
             school,
+            locationDetails,
             profileCompleted: true
           }
         });
@@ -181,6 +180,7 @@ router.get('/me', authenticateToken, async (req: AuthenticatedRequest, res) => {
         username: true,
         displayName: true,
         school: true,
+        locationDetails: true,
         profileCompleted: true,
         createdAt: true,
         lastLogin: true
@@ -227,6 +227,7 @@ router.post('/oauth-callback', async (req, res) => {
           email: authUser.email,
           username: authUser.email.split('@')[0],
           displayName: authUser.user_metadata?.full_name || authUser.email.split('@')[0],
+          locationDetails: '',
           profileCompleted: false
         },
         needsProfileCompletion: true
@@ -268,6 +269,7 @@ router.post('/oauth-callback', async (req, res) => {
             email: existingUser.email,
             username: existingUser.username,
             displayName: existingUser.displayName,
+            locationDetails: existingUser.locationDetails,
             profileCompleted: existingUser.profileCompleted
           },
           needsProfileCompletion: false
@@ -280,6 +282,7 @@ router.post('/oauth-callback', async (req, res) => {
           email: authUser.email,
           username: authUser.email.split('@')[0],
           displayName: authUser.user_metadata?.full_name || authUser.email.split('@')[0],
+          locationDetails: '',
           profileCompleted: false,
           lastLogin: new Date()
         }
@@ -297,6 +300,7 @@ router.post('/oauth-callback', async (req, res) => {
           email: user.email,
           username: user.username,
           displayName: user.displayName,
+          locationDetails: user.locationDetails,
           profileCompleted: user.profileCompleted
         },
         needsProfileCompletion: true
@@ -334,9 +338,8 @@ router.post('/complete-profile', authenticateToken, async (req: AuthenticatedReq
   try {
     const validatedData = completeProfileSchema.parse(req.body);
     const { 
-      displayName, phoneNumber, school, neighborhood, 
-      priceRange, meetingPreference, interests,
-      hangoutTypes, preferredTimeOfDay, preferredDays
+      displayName, phoneNumber, school, locationDetails, 
+      priceRange, meetingPreference, interests, cuisinePreferences 
     } = validatedData;
 
     // Update user profile
@@ -346,13 +349,11 @@ router.post('/complete-profile', authenticateToken, async (req: AuthenticatedReq
         displayName,
         phoneNumber,
         school,
-        neighborhood,
+        locationDetails,
         priceRange,
         meetingPreference,
         interests,
-        hangoutTypes,
-        preferredTimeOfDay,
-        preferredDays,
+        cuisinePreferences,
         profileCompleted: true,
         lastLogin: new Date()
       }
@@ -366,6 +367,7 @@ router.post('/complete-profile', authenticateToken, async (req: AuthenticatedReq
         username: user.username,
         displayName: user.displayName,
         school: user.school,
+        locationDetails: user.locationDetails,
         profileCompleted: user.profileCompleted
       }
     });
