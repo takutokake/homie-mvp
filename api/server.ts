@@ -35,9 +35,7 @@ app.use(helmet({
 }));
 
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://homie-mvp-101.vercel.app']
-    : ['http://localhost:3000', 'http://127.0.0.1:3000'],
+  origin: ['https://homie-mvp-101.vercel.app', 'http://localhost:3000', 'http://127.0.0.1:3000'],
   credentials: true
 }));
 
