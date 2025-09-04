@@ -111,7 +111,9 @@
 <h2 class="text-3xl font-bold text-white">Create your account</h2>
 <p class="mt-2 text-gray-400">Join the community and start connecting.</p>
 </div>
-<form id="signup-form" class="space-y-6" method="POST">
+
+<!-- Invite Code Section -->
+<div id="invite-section" class="space-y-6">
 <div>
 <label class="sr-only" for="invite">Invite Code</label>
 <div class="flex gap-2">
@@ -123,6 +125,24 @@
 </button>
 </div>
 <p id="invite-hint" class="mt-2 text-xs text-gray-500">ask a friend for a code</p>
+</div>
+</div>
+
+<!-- Auth Options Section (Hidden by default) -->
+<div id="auth-section" class="space-y-6 hidden">
+<div class="flex flex-col gap-4">
+<button type="button" onclick="googleWithInvite()" class="flex w-full items-center justify-center gap-3 rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-white hover:bg-[#2a2113] transition-all duration-300">
+  <img src="https://www.google.com/favicon.ico" alt="Google" class="w-5 h-5"/>
+  Continue with Google
+</button>
+<div class="relative">
+  <div class="absolute inset-0 flex items-center">
+    <div class="w-full border-t border-[#4A3C21]"></div>
+  </div>
+  <div class="relative flex justify-center text-sm">
+    <span class="px-2 bg-[#1C160C] text-gray-400">or</span>
+  </div>
+</div>
 </div>
 
 <!-- Basic Account Info -->
@@ -279,9 +299,10 @@ verifyBtn.addEventListener('click', async () => {
     const data = await res.json();
     
     if (data.valid) {
-      hint.textContent = `valid • ${data.remaining} use(s) left`;
+      hint.textContent = `valid • ${data.remaining || 999} use(s) left`;
       hint.className = 'mt-2 text-xs text-green-400';
       submitBtn.disabled = false;
+      toggleAuthSection(true);
     } else {
       hint.textContent = `not valid (${data.reason || 'unknown'})`;
       hint.className = 'mt-2 text-xs text-red-400';
@@ -296,6 +317,13 @@ verifyBtn.addEventListener('click', async () => {
   verifyBtn.textContent = 'Verify';
   verifyBtn.disabled = false;
 });
+
+// Hide/show sections based on invite verification
+function toggleAuthSection(show) {
+  document.getElementById('invite-section').style.display = show ? 'none' : 'block';
+  document.getElementById('auth-section').style.display = show ? 'block' : 'none';
+  document.getElementById('signup-form').style.display = show ? 'block' : 'none';
+}
 
 // Handle email signup with Supabase Auth
 document.getElementById('signup-form').addEventListener('submit', async (e) => {
