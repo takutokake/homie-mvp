@@ -130,10 +130,4 @@ ALTER TABLE meetup_participants ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can view their own data" ON users
     FOR ALL USING (auth.uid()::text = id);
 
-CREATE POLICY "Anyone can read invites" ON invites
-    FOR SELECT USING (true);
-
-CREATE POLICY "Users can manage their own sessions" ON sessions
-    FOR ALL USING (auth.uid()::text = "userId");
-
--- Add more policies as needed for your app's security requirements
+CREATE POLICY "Anyone

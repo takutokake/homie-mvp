@@ -79,35 +79,5 @@
             </main>
         </div>
     </div>
-
-    <script>
-    // Generate a signup token
-    const generateSignupToken = () => {
-        const timestamp = Date.now();
-        const random = Math.random().toString(36).substring(2);
-        return `SIGNUP_${timestamp}_${random}`;
-    };
-
-    // Wait for a moment then redirect to profile completion
-    setTimeout(() => {
-        const signupEmail = localStorage.getItem('signupEmail');
-        const inviteCode = localStorage.getItem('verifiedInviteCode');
-        
-        if (signupEmail && inviteCode) {
-            // Generate signup token
-            const signupToken = generateSignupToken();
-            
-            // Store signup token and invite code for profile completion
-            localStorage.setItem('signupToken', signupToken);
-            
-            // Redirect to profile completion with token
-            window.location.href = `/complete-profile.html?token=${encodeURIComponent(signupToken)}`;
-        } else {
-            console.error('Missing signup email or invite code');
-            alert('Something went wrong. Please try signing up again.');
-            window.location.href = '/invite.html';
-        }
-    }, 3000); // Wait 3 seconds before redirecting
-    </script>
 </body>
 </html>

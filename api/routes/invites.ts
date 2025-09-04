@@ -11,7 +11,6 @@ router.post('/verify', inviteVerifyLimit, async (req, res) => {
     const codeUpper = code.toUpperCase();
 
     // Test invite codes for development - bypass database
-    // For test codes, bypass database check
     const testCodes = ['TEST01', 'TEST02', 'DEMO01', 'DEMO02', 'DEV001', 'HOMIE1', 'INVITE'];
     if (testCodes.includes(codeUpper)) {
       return res.json({
@@ -22,8 +21,6 @@ router.post('/verify', inviteVerifyLimit, async (req, res) => {
     }
 
     try {
-
-      // For real codes, check database
       const invite = await prisma.invite.findUnique({
         where: { code: codeUpper },
       });
@@ -55,16 +52,8 @@ router.post('/verify', inviteVerifyLimit, async (req, res) => {
         expiresAt: invite.expiresAt 
       });
     } catch (dbError) {
-      // If database fails, check if it's a connection error
+      // If database fails, fall back to invalid for non-test codes
       console.error('Database error during invite verification:', dbError);
-      const error = dbError as Error;
-      if (error.message?.includes('Can\'t reach database server')) {
-        return res.status(503).json({ 
-          valid: false, 
-          reason: 'maintenance',
-          message: 'Service temporarily unavailable. Please try again later.'
-        });
-      }
       return res.status(404).json({ 
         valid: false, 
         reason: 'invalid' 

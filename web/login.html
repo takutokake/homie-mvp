@@ -194,11 +194,26 @@ document.getElementById('google-btn').addEventListener('click', async () => {
   }
   
   try {
-    const redirectUrl = `${window.location.origin}/auth/v1/callback`;
-    console.log('Redirect URL:', redirectUrl);
-    // Store invite code in session storage before redirect
     const inviteCode = localStorage.getItem('verifiedInviteCode');
+    if (!inviteCode) {
+      alert('Please verify your invite code first');
+      window.location.href = '/invite.html';
+      return;
+    }
+
+    // Generate a random state value that includes the invite code
+    const randomState = Math.random().toString(36).substring(2);
+    const state = `${randomState}:${inviteCode}`;
+    sessionStorage.setItem('oauthState', state);
     sessionStorage.setItem('pendingInviteCode', inviteCode);
+
+    // Use production URL on Vercel, localhost for development
+    const isProduction = window.location.hostname.includes('vercel.app');
+    const baseUrl = isProduction
+      ? 'https://homie-mvp-101.vercel.app'
+      : 'http://localhost:3002';
+    const redirectUrl = `${baseUrl}/auth/v1/callback`;
+    console.log('OAuth configuration:', { redirectUrl, state, inviteCode });
 
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -207,7 +222,7 @@ document.getElementById('google-btn').addEventListener('click', async () => {
         queryParams: {
           access_type: 'offline',
           prompt: 'consent',
-          state: inviteCode // Pass invite code in state parameter
+          state // Pass the full state parameter with random value and invite code
         }
       }
     });
@@ -305,8 +320,8 @@ document.getElementById('signup-btn').addEventListener('click', async () => {
     // Store email for profile completion
     localStorage.setItem('signupEmail', email);
     
-    // Redirect to profile completion
-    window.location.href = '/profile.html';
+    // Redirect to success page
+    window.location.href = '/web/success.html';
   } catch (error) {
     console.error('Sign up error:', error);
     alert(error.message || 'Sign up failed - please try again');
@@ -326,41 +341,82 @@ async function handleOAuthCallback() {
       console.log('Auth error:', error);
       
       if (error || !user) {
-        throw new Error('Failed to get user information');
+        console.error('Failed to get user:', error);
+        alert('Failed to authenticate with Google');
+        window.location.href = '/web/login.html';
+        return;
       }
-      
-      // Get stored invite code
-      const storedCode = sessionStorage.getItem('pendingInviteCode');
-      console.log('Retrieved invite code:', storedCode);
-      if (!storedCode) {
-        throw new Error('Missing invite code');
+
+      // Extract invite code from state parameter
+      const returnedState = urlParams.get('state');
+      if (!returnedState) {
+        console.error('No state parameter returned');
+        alert('Missing security verification. Please try again.');
+        return;
       }
-      
-      // Check if user needs profile completion
-      console.log('Sending OAuth callback to backend...');
-      const response = await fetch('/api/auth/oauth-callback', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          user: user,
-          code: storedCode
-        })
-      });
-      
-      const data = await response.json();
-      console.log('Backend response:', data);
-      
-      if (response.ok) {
-        localStorage.removeItem('verifiedInviteCode');
-        sessionStorage.removeItem('pendingInviteCode');
+
+      const [stateValue, stateInviteCode] = returnedState.split(':');
+      const savedState = sessionStorage.getItem('oauthState');
+      const savedInviteCode = sessionStorage.getItem('pendingInviteCode');
+
+      if (!savedState || returnedState !== savedState) {
+        console.error('State mismatch:', { returnedState, savedState });
+        alert('Security verification failed. Please try again.');
+        return;
+      }
+
+      if (!stateInviteCode || stateInviteCode !== savedInviteCode) {
+        console.error('Invite code mismatch:', { stateInviteCode, savedInviteCode });
+        alert('Invite code verification failed. Please try again.');
+        return;
+      }
+
+      const session = await supabase.auth.getSession();
+      if (session?.data?.session) {
+        const user = session.data.session.user;
+        const inviteCode = sessionStorage.getItem('pendingInviteCode');
         
-        if (data.needsProfileCompletion) {
-          window.location.href = '/profile.html';
-        } else {
-          window.location.href = '/';
+        if (!inviteCode) {
+          console.error('No invite code found in session storage');
+          alert('Missing invite code. Please start over from the invite page.');
+          window.location.href = '/web/invite.html';
+          return;
+        }
+
+        try {
+          console.log('Sending OAuth callback to backend:', { user, inviteCode });
+          const response = await fetch('/api/auth/oauth-callback', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              user,
+              code: inviteCode
+            })
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+          console.log('OAuth callback response:', data);
+          
+          // Clear OAuth state and invite code from session storage
+          sessionStorage.removeItem('oauthState');
+          sessionStorage.removeItem('pendingInviteCode');
+          
+          // Always redirect to success page after signup
+          window.location.href = '/web/success.html';
+        } catch (error) {
+          console.error('Error in OAuth callback:', error);
+          alert('Failed to complete sign in: ' + error.message);
         }
       } else {
-        throw new Error(data.error || 'OAuth callback failed');
+        console.error('No session found after OAuth callback');
+        alert('Failed to authenticate with Google. Please try again.');
       }
     } catch (error) {
       console.error('OAuth callback error:', error);

@@ -125,7 +125,6 @@ router.post('/signup', signupLimit, async (req, res) => {
           username: user.username,
           displayName: user.displayName,
           school: user.school,
-          locationDetails: user.locationDetails,
           profileCompleted: user.profileCompleted
         }
       });
@@ -141,7 +140,6 @@ router.post('/signup', signupLimit, async (req, res) => {
             username,
             displayName,
             school,
-            locationDetails,
             profileCompleted: true
           }
         });
@@ -180,7 +178,6 @@ router.get('/me', authenticateToken, async (req: AuthenticatedRequest, res) => {
         username: true,
         displayName: true,
         school: true,
-        locationDetails: true,
         profileCompleted: true,
         createdAt: true,
         lastLogin: true
@@ -227,7 +224,6 @@ router.post('/oauth-callback', async (req, res) => {
           email: authUser.email,
           username: authUser.email.split('@')[0],
           displayName: authUser.user_metadata?.full_name || authUser.email.split('@')[0],
-          locationDetails: '',
           profileCompleted: false
         },
         needsProfileCompletion: true
@@ -269,7 +265,6 @@ router.post('/oauth-callback', async (req, res) => {
             email: existingUser.email,
             username: existingUser.username,
             displayName: existingUser.displayName,
-            locationDetails: existingUser.locationDetails,
             profileCompleted: existingUser.profileCompleted
           },
           needsProfileCompletion: false
@@ -282,7 +277,6 @@ router.post('/oauth-callback', async (req, res) => {
           email: authUser.email,
           username: authUser.email.split('@')[0],
           displayName: authUser.user_metadata?.full_name || authUser.email.split('@')[0],
-          locationDetails: '',
           profileCompleted: false,
           lastLogin: new Date()
         }
@@ -300,7 +294,6 @@ router.post('/oauth-callback', async (req, res) => {
           email: user.email,
           username: user.username,
           displayName: user.displayName,
-          locationDetails: user.locationDetails,
           profileCompleted: user.profileCompleted
         },
         needsProfileCompletion: true
@@ -367,7 +360,6 @@ router.post('/complete-profile', authenticateToken, async (req: AuthenticatedReq
         username: user.username,
         displayName: user.displayName,
         school: user.school,
-        locationDetails: user.locationDetails,
         profileCompleted: user.profileCompleted
       }
     });

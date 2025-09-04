@@ -163,20 +163,19 @@
                 const config = await response.json();
                 supabase = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
                 
-                // Check for signup token or session token
-                const signupToken = localStorage.getItem('signupToken');
-                const urlToken = new URLSearchParams(window.location.search).get('token');
-                const session = await supabase.auth.getSession();
-                
-                if (signupToken && signupToken === urlToken) {
-                    // Use signup token for new user profile completion
-                    headers['Authorization'] = `Bearer ${signupToken}`;
-                } else if (session?.data?.session?.access_token) {
-                    // Use session token for existing user profile updates
-                    headers['Authorization'] = `Bearer ${session.data.session.access_token}`;
-                } else {
-                    alert('Please sign in first.');
-                    window.location.href = '/login.html';
+                // Check if user is authenticated
+                const { data: { session }, error } = await supabase.auth.getSession();
+                if (error || !session) {
+                    console.error('No session found');
+                    window.location.href = '/web/signup.html';
+                    return;
+                }
+
+                // Get user data
+                const { data: { user }, error: userError } = await supabase.auth.getUser();
+                if (userError || !user) {
+                    console.error('No user found');
+                    window.location.href = '/web/signup.html';
                     return;
                 }
             } catch (error) {
@@ -227,35 +226,34 @@
                     throw new Error('Authentication system not ready');
                 }
                 
-                // Get session or signup token
-                const { data: { session } } = await supabase.auth.getSession();
-                const params = new URLSearchParams(window.location.search);
-                const signupToken = params.get('signup_token');
+                const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+                if (sessionError || !session) {
+                    throw new Error('Authentication required');
+                }
+
+                const { data: { user }, error: userError } = await supabase.auth.getUser();
+                if (userError || !user) {
+                    throw new Error('User data not found');
+                }
                 
-                // Set the appropriate authorization header
-                const authHeader = signupToken ? `Bearer ${signupToken}` : `Bearer ${session.access_token}`;
-                
-                const response = await fetch('/api/profile', {
+                const res = await fetch('/api/profile/complete-profile', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': authHeader
+                        'Authorization': `Bearer ${session.access_token}`
                     },
                     body: JSON.stringify(payload)
                 });
                 
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log('Profile completed:', data);
-                    
-                    // Clear signup-related data after successful profile completion
-                    localStorage.removeItem('signupToken');
-                    localStorage.removeItem('signupEmail');
-                    localStorage.removeItem('verifiedInviteCode');
-                    
-                    window.location.href = '/';
+                const data = await res.json();
+                
+                if (res.ok) {
+                    alert('Profile completed successfully!');
+                    window.location.href = '/web/thank-you.html';
                 } else {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    alert(data.error || 'Profile completion failed');
+                    completeBtn.disabled = false;
+                    completeBtn.textContent = 'Complete Profile';
                 }
             } catch (error) {
                 console.error('Profile completion error:', error);

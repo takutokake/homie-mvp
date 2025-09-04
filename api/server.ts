@@ -7,9 +7,10 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 
-import { generalLimit } from './middleware/rateLimit.js';
-import authRoutes from './routes/auth.js';
-import inviteRoutes from './routes/invites.js';
+import { generalLimit } from './middleware/rateLimit';
+import authRoutes from './routes/auth';
+import inviteRoutes from './routes/invites';
+import profileRoutes from './routes/profile';
 
 // Load environment variables
 dotenv.config();
@@ -18,7 +19,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3002;
+console.log('Starting server on port:', PORT);
 
 // Security middleware
 app.use(helmet({
@@ -84,11 +86,37 @@ app.use(generalLimit);
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/invites', inviteRoutes);
+app.use('/api/profile', profileRoutes);
 
 // Supabase auth callback handler
 app.get('/auth/v1/callback', (req, res) => {
-  // Redirect to login page with oauth=callback parameter
-  res.redirect('/login.html?oauth=callback');
+  const { state, error } = req.query;
+  console.log('OAuth callback received:', { state, error });
+
+  if (error) {
+    console.error('OAuth callback error:', error);
+    res.redirect('/web/login.html?error=' + encodeURIComponent(error.toString()));
+    return;
+  }
+
+  if (!state) {
+    console.error('No state parameter in callback');
+    res.redirect('/web/login.html?error=missing_state');
+    return;
+  }
+
+  // Extract invite code from state parameter
+  const [stateValue, inviteCode] = state.toString().split(':');
+  if (!inviteCode) {
+    console.error('No invite code in state parameter');
+    res.redirect('/web/login.html?error=missing_invite_code');
+    return;
+  }
+
+    // Pass both state and invite code to login page
+  const redirectUrl = `/web/login.html?oauth=callback&state=${state}&invite=${inviteCode}`;
+  console.log('Redirecting to:', redirectUrl);
+  res.redirect(redirectUrl);
 });
 
 // Serve static files from web directory
