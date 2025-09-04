@@ -1,7 +1,6 @@
 {
   "rewrites": [
-    { "source": "/auth/v1/callback", "destination": "/api/auth/callback" },
-    { "source": "/api/invites/verify", "destination": "/api/invites/verify" },
+    { "source": "/api/(.*)", "destination": "/api/server.js" },
     { "source": "/invite.html", "destination": "/web/invite.html" },
     { "source": "/login.html", "destination": "/web/login.html" },
     { "source": "/profile.html", "destination": "/web/profile.html" },
@@ -10,12 +9,6 @@
     { "source": "/", "destination": "/web/index.html" },
     { "source": "/:path*", "destination": "/web/:path*" }
   ],
-  "functions": {
-    "api/invites/verify.ts": {
-      "memory": 1024,
-      "maxDuration": 10
-    }
-  },
   "buildCommand": "prisma generate && tsc",
   "outputDirectory": "web",
   "public": true
