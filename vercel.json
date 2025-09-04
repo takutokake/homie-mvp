@@ -2,8 +2,37 @@
   "version": 2,
   "builds": [
     {
-      "src": "package.json",
-      "use": "@vercel/node"
+      "src": "api/server.ts",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["prisma/schema.prisma"]
+      }
+    },
+    {
+      "src": "web/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/server.ts"
+    },
+    {
+      "src": "/web/(.*)",
+      "dest": "/web/$1"
+    },
+    {
+      "src": "/signup.html",
+      "dest": "/web/signup.html"
+    },
+    {
+      "src": "/complete-profile.html",
+      "dest": "/web/complete-profile.html"
+    },
+    {
+      "src": "/",
+      "dest": "/web/index.html"
     }
   ]
 }
