@@ -162,6 +162,8 @@ Need a different invite code?
 let supabase = null;
 
 async function initializeSupabase() {
+  if (supabase) return supabase; // Already initialized
+  
   // Wait for config to load
   let attempts = 0;
   while (!window.SUPABASE_CONFIG && attempts < 50) {
@@ -170,23 +172,38 @@ async function initializeSupabase() {
   }
   
   if (!window.SUPABASE_CONFIG) {
-    console.error('Failed to load Supabase config');
-    return;
+    console.error('Failed to load Supabase config after 5 seconds');
+    return null;
   }
   
-  supabase = window.supabase.createClient(
-    window.SUPABASE_CONFIG.url,
-    window.SUPABASE_CONFIG.anonKey,
-    {
-      auth: {
-        autoRefreshToken: true,
-        persistSession: true,
-        detectSessionInUrl: true
-      }
-    }
-  );
+  if (!window.SUPABASE_CONFIG.url || !window.SUPABASE_CONFIG.anonKey) {
+    console.error('Invalid Supabase config:', window.SUPABASE_CONFIG);
+    return null;
+  }
   
-  console.log('Supabase initialized with environment config');
+  try {
+    supabase = window.supabase.createClient(
+      window.SUPABASE_CONFIG.url,
+      window.SUPABASE_CONFIG.anonKey,
+      {
+        auth: {
+          autoRefreshToken: true,
+          persistSession: true,
+          detectSessionInUrl: true
+        }
+      }
+    );
+    
+    console.log('Supabase initialized successfully with config:', {
+      url: window.SUPABASE_CONFIG.url,
+      hasKey: !!window.SUPABASE_CONFIG.anonKey
+    });
+    
+    return supabase;
+  } catch (error) {
+    console.error('Failed to create Supabase client:', error);
+    return null;
+  }
 }
 
 // Initialize on page load
@@ -201,6 +218,11 @@ if (!verifiedCode) {
 
 // Google OAuth
 document.getElementById('google-btn').addEventListener('click', async () => {
+  // Wait for Supabase to initialize if not ready
+  if (!supabase) {
+    await initializeSupabase();
+  }
+  
   if (!supabase) {
     alert('Authentication system not ready. Please refresh and try again.');
     return;
@@ -260,6 +282,11 @@ document.getElementById('signin-btn').addEventListener('click', async () => {
     return;
   }
   
+  // Wait for Supabase to initialize if not ready
+  if (!supabase) {
+    await initializeSupabase();
+  }
+  
   if (!supabase) {
     alert('Authentication system not ready. Please refresh and try again.');
     return;
@@ -305,6 +332,11 @@ document.getElementById('signup-btn').addEventListener('click', async () => {
   if (password.length < 8) {
     alert('Password must be at least 8 characters');
     return;
+  }
+  
+  // Wait for Supabase to initialize if not ready
+  if (!supabase) {
+    await initializeSupabase();
   }
   
   if (!supabase) {
