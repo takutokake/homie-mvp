@@ -9,13 +9,15 @@ export const signupSchema = z.object({
   
   // Profile information
   displayName: z.string().min(1).max(50, 'Display name must be 1-50 characters'),
-  phoneNumber: z.string().optional().nullable(),
+  phoneNumber: z.string(),
   school: z.enum(['USC', 'UCLA'], { errorMap: () => ({ message: 'School must be USC or UCLA' }) }),
-  locationDetails: z.string().optional().nullable(),
+  neighborhood: z.string().optional(),
   priceRange: z.enum(['$', '$$', '$$$', '$$$$'], { errorMap: () => ({ message: 'Invalid price range' }) }),
-  meetingPreference: z.array(z.enum(['coffee', 'lunch', 'dinner', 'study', 'casual', 'activity'])).default([]),
-  interests: z.array(z.string()).default([]),
-  cuisinePreferences: z.array(z.string()).default([]),
+  interests: z.array(z.string()).min(1).max(3),
+  hangoutTypes: z.array(z.string()).min(1),
+  preferredTimeOfDay: z.array(z.string()).min(1),
+  preferredDays: z.array(z.string()).min(1),
+  meetingPreference: z.array(z.string()).min(1),
 });
 
 export const loginSchema = z.object({
@@ -29,13 +31,15 @@ export const verifyInviteSchema = z.object({
 
 export const completeProfileSchema = z.object({
   displayName: z.string().min(1).max(50, 'Display name must be 1-50 characters'),
-  phoneNumber: z.string().optional().nullable(),
+  phoneNumber: z.string(),
   school: z.enum(['USC', 'UCLA'], { errorMap: () => ({ message: 'School must be USC or UCLA' }) }),
-  locationDetails: z.string().optional().nullable(),
+  neighborhood: z.string().optional(),
   priceRange: z.enum(['$', '$$', '$$$', '$$$$'], { errorMap: () => ({ message: 'Invalid price range' }) }),
-  meetingPreference: z.array(z.enum(['coffee', 'lunch', 'dinner', 'study', 'casual', 'activity'])).default([]),
-  interests: z.array(z.string()).default([]),
-  cuisinePreferences: z.array(z.string()).default([]),
+  interests: z.array(z.string()).min(1).max(3),
+  hangoutTypes: z.array(z.string()).min(1),
+  preferredTimeOfDay: z.array(z.string()).min(1),
+  preferredDays: z.array(z.string()).min(1),
+  meetingPreference: z.array(z.string()).min(1),
 });
 
 export function validatePassword(password: string): { isValid: boolean; reason?: string } {

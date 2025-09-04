@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import { prisma } from '../lib/prisma.js';
-import { supabaseAdmin, supabaseConfig } from '../lib/supabase.js';
-import { signupSchema, completeProfileSchema } from '../lib/validators.js';
-import { signupLimit } from '../middleware/rateLimit.js';
-import { authenticateToken, AuthenticatedRequest } from '../middleware/auth.js';
+import { prisma } from '../lib/prisma';
+import { supabaseAdmin, supabaseConfig } from '../lib/supabase';
+import { signupSchema, completeProfileSchema } from '../lib/validators';
+import { signupLimit } from '../middleware/rateLimit';
+import { authenticateToken, AuthenticatedRequest } from '../middleware/auth';
 
 const router = Router();
 
@@ -44,8 +44,9 @@ router.post('/signup', signupLimit, async (req, res) => {
     const validatedData = signupSchema.parse(req.body);
     const { 
       username, email, code,
-      displayName, phoneNumber, school, locationDetails, 
-      priceRange, meetingPreference, interests, cuisinePreferences 
+      displayName, phoneNumber, school, neighborhood, 
+      priceRange, meetingPreference, interests,
+      hangoutTypes, preferredTimeOfDay, preferredDays
     } = validatedData;
 
     const codeUpper = code.toUpperCase();
@@ -99,11 +100,13 @@ router.post('/signup', signupLimit, async (req, res) => {
           displayName,
           phoneNumber,
           school,
-          locationDetails,
+          neighborhood,
           priceRange,
-          meetingPreference,
           interests,
-          cuisinePreferences,
+          hangoutTypes,
+          preferredTimeOfDay,
+          preferredDays,
+          meetingPreference,
           profileCompleted: true,
           lastLogin: new Date()
         }
@@ -198,13 +201,13 @@ router.get('/me', authenticateToken, async (req: AuthenticatedRequest, res) => {
 // Handle OAuth callback and create user profile
 router.post('/oauth-callback', async (req, res) => {
   console.log('Received OAuth callback request:', { body: req.body });
-  // Set CORS headers for OAuth callback
+  // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  
   try {
     const { user: authUser, code } = req.body;
-    
     if (!authUser) {
       console.error('Missing user data in OAuth callback');
       return res.status(400).json({ error: 'missing_user_data' });
@@ -214,36 +217,24 @@ router.post('/oauth-callback', async (req, res) => {
       return res.status(400).json({ error: 'missing_invite_code' });
     }
 
-    const codeUpper = code.toUpperCase();
-
     // Handle test invite codes
+    const codeUpper = code.toUpperCase();
     const testCodes = ['TEST01', 'TEST02', 'DEMO01', 'DEMO02', 'DEV001', 'HOMIE1', 'INVITE'];
     if (testCodes.includes(codeUpper)) {
-      // Create user profile for test code
-      const user = await prisma.user.create({
-        data: {
+      return res.json({
+        user: {
+          id: 'test-user',
           email: authUser.email,
           username: authUser.email.split('@')[0],
           displayName: authUser.user_metadata?.full_name || authUser.email.split('@')[0],
-          profileCompleted: false,
-          lastLogin: new Date()
-        }
-      });
-
-      return res.json({
-        user: {
-          id: user.id,
-          email: user.email,
-          username: user.username,
-          displayName: user.displayName,
-          profileCompleted: user.profileCompleted
+          profileCompleted: false
         },
         needsProfileCompletion: true
       });
     }
 
     // For non-test codes, use transaction
-    await prisma.$transaction(async (tx) => {
+    const transactionResult = await prisma.$transaction(async (tx) => {
       // Check invite validity
       const invite = await tx.invite.findUnique({
         where: { code: codeUpper }
@@ -271,15 +262,16 @@ router.post('/oauth-callback', async (req, res) => {
           data: { lastLogin: new Date() }
         });
         
-        return res.json({
+        return {
           user: {
             id: existingUser.id,
             email: existingUser.email,
             username: existingUser.username,
             displayName: existingUser.displayName,
             profileCompleted: existingUser.profileCompleted
-          }
-        });
+          },
+          needsProfileCompletion: false
+        };
       }
 
       // Create new user profile (needs completion)
@@ -299,7 +291,7 @@ router.post('/oauth-callback', async (req, res) => {
         data: { usedCount: { increment: 1 } }
       });
 
-      res.json({
+      return {
         user: {
           id: user.id,
           email: user.email,
@@ -308,8 +300,10 @@ router.post('/oauth-callback', async (req, res) => {
           profileCompleted: user.profileCompleted
         },
         needsProfileCompletion: true
-      });
+      };
     });
+
+    return res.json(transactionResult);
   } catch (error: any) {
     console.error('OAuth callback error:', error);
     console.error('Error details:', {
@@ -340,8 +334,9 @@ router.post('/complete-profile', authenticateToken, async (req: AuthenticatedReq
   try {
     const validatedData = completeProfileSchema.parse(req.body);
     const { 
-      displayName, phoneNumber, school, locationDetails, 
-      priceRange, meetingPreference, interests, cuisinePreferences 
+      displayName, phoneNumber, school, neighborhood, 
+      priceRange, meetingPreference, interests,
+      hangoutTypes, preferredTimeOfDay, preferredDays
     } = validatedData;
 
     // Update user profile
@@ -351,11 +346,13 @@ router.post('/complete-profile', authenticateToken, async (req: AuthenticatedReq
         displayName,
         phoneNumber,
         school,
-        locationDetails,
+        neighborhood,
         priceRange,
         meetingPreference,
         interests,
-        cuisinePreferences,
+        hangoutTypes,
+        preferredTimeOfDay,
+        preferredDays,
         profileCompleted: true,
         lastLogin: new Date()
       }
