@@ -413,7 +413,9 @@ document.getElementById('signup-form').addEventListener('submit', async (e) => {
     const data = await res.json();
     
     if (res.ok) {
-      location.href = '/web/complete-profile.html';
+      // Generate a signup token and redirect to profile completion
+      const signupToken = `SIGNUP_${Math.random().toString(36).substring(2)}`;
+      location.href = `/web/complete-profile.html?signup_token=${signupToken}`;
     } else {
       // If profile creation failed, we should clean up the Supabase user
       await supabase.auth.signOut();
@@ -506,7 +508,8 @@ async function handleOAuthCallback() {
       
       // Always redirect to profile completion if needed
       if (!data.profileCompleted) {
-        window.location.href = '/web/complete-profile.html';
+        const signupToken = `SIGNUP_${Math.random().toString(36).substring(2)}`;
+        window.location.href = `/web/complete-profile.html?signup_token=${signupToken}`;
       } else {
         window.location.href = '/web/thank-you.html';
       }

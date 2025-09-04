@@ -8,46 +8,54 @@ export interface AuthenticatedRequest extends Request {
 }
 
 export async function authenticateToken(req: AuthenticatedRequest, res: Response, next: NextFunction) {
-  const authHeader = req.headers.authorization;
-  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
-
+  // Get token from Authorization header
+  const token = req.headers.authorization?.split(' ')[1];
   if (!token) {
-    return res.status(401).json({ error: 'access_token_required' });
+    return res.status(401).json({ error: 'Please sign in first.' });
+  }
+
+  // Handle signup tokens
+  if (token.startsWith('SIGNUP_')) {
+    // For signup tokens, create a temporary user context
+    req.user = { id: 'temp', email: 'temp', isNewSignup: true };
+    return next();
   }
 
   try {
-    // Verify the Supabase JWT token
-    const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
-    
-    if (error || !user || !user.email) {
-      return res.status(401).json({ error: 'invalid_token' });
-    }
-
-    // Get or create user in our database
-    let dbUser = await prisma.user.findFirst({
-      where: {
-        email: user.email
+    // Skip Supabase verification for signup tokens
+    if (!token.startsWith('SIGNUP_')) {
+      const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
+      if (error || !user || !user.email) {
+        return res.status(401).json({ error: 'Invalid token.' });
       }
-    });
 
-    if (!dbUser) {
-      // Create new user with temporary values for required fields
-      const tempUsername = `user_${Math.random().toString(36).substring(2, 10)}`;
-      dbUser = await prisma.user.create({
-        data: {
-          email: user.email,
-          username: tempUsername,
-          displayName: user.email.split('@')[0], // Temporary display name from email
-          isActive: true,
-          profileCompleted: false
-        }
+      // Look up or create user in database
+      let dbUser = await prisma.user.findUnique({
+        where: { email: user.email }
       });
-    } else if (!dbUser.isActive) {
-      return res.status(401).json({ error: 'user_inactive' });
-    }
 
-    req.userId = dbUser.id;
-    req.user = user;
+      if (!dbUser) {
+        // Create new user with temporary values for required fields
+        const tempUsername = `user_${Math.random().toString(36).substring(2, 10)}`;
+        dbUser = await prisma.user.create({
+          data: {
+            email: user.email,
+            username: tempUsername,
+            displayName: tempUsername,
+            isActive: true,
+            profileCompleted: false
+          }
+        });
+      } else if (!dbUser.isActive) {
+        return res.status(401).json({ error: 'user_inactive' });
+      }
+
+      req.userId = dbUser.id;
+      req.user = user;
+    } else {
+      // For signup tokens, we already set the user context above
+      req.user = { id: 'temp', email: 'temp', isNewSignup: true };
+    }
     next();
   } catch (error) {
     console.error('Token verification error:', error);

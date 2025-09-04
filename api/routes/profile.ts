@@ -6,8 +6,34 @@ import { Response } from 'express';
 
 const router = Router();
 
-router.post('/complete-profile', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+router.post('/', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
+    // Handle signup token case
+    if (req.user?.isNewSignup) {
+      // For new signups, we need to create a new user profile
+      const { email } = req.body;
+      if (!email) {
+        return res.status(400).json({ error: 'Email is required for new signups' });
+      }
+
+      // Check if user already exists
+      const existingUser = await prisma.user.findUnique({
+        where: { email }
+      });
+
+      if (existingUser) {
+        return res.status(400).json({ error: 'User already exists' });
+      }
+
+      const newUser = await prisma.user.create({
+        data: {
+          ...req.body,
+          isActive: true,
+          profileCompleted: true
+        }
+      });
+      req.userId = newUser.id;
+    }
     if (!req.userId) {
       return res.status(401).json({ error: 'User not authenticated' });
     }
@@ -16,39 +42,16 @@ router.post('/complete-profile', authenticateToken, async (req: AuthenticatedReq
       displayName,
       phoneNumber,
       school,
-      neighborhood,
+      locationDetails,
       priceRange,
+      meetingPreference,
       interests,
-      hangoutTypes,
-      preferredTimeOfDay,
-      preferredDays,
-      meetingPreference
+      cuisinePreferences
     } = req.body;
 
     // Validate required fields
-    if (!displayName || !phoneNumber || !school || !priceRange) {
+    if (!displayName || !school || !priceRange) {
       return res.status(400).json({ error: 'Missing required fields' });
-    }
-
-    // Validate array fields
-    if (!interests?.length || interests.length > 3) {
-      return res.status(400).json({ error: 'Please select 1-3 interests' });
-    }
-
-    if (!hangoutTypes?.length) {
-      return res.status(400).json({ error: 'Please select at least one type of hangout' });
-    }
-
-    if (!preferredTimeOfDay?.length) {
-      return res.status(400).json({ error: 'Please select at least one preferred time of day' });
-    }
-
-    if (!preferredDays?.length) {
-      return res.status(400).json({ error: 'Please select at least one preferred day' });
-    }
-
-    if (!meetingPreference?.length) {
-      return res.status(400).json({ error: 'Please select at least one meeting preference' });
     }
 
     // Update user profile in database
@@ -58,13 +61,11 @@ router.post('/complete-profile', authenticateToken, async (req: AuthenticatedReq
         displayName,
         phoneNumber,
         school,
-        neighborhood,
+        locationDetails,
         priceRange,
-        interests,
-        hangoutTypes,
-        preferredTimeOfDay,
-        preferredDays,
         meetingPreference,
+        interests,
+        cuisinePreferences,
         profileCompleted: true,
         updatedAt: new Date()
       }
