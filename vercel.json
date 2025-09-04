@@ -31,6 +31,10 @@
       "dest": "/web/complete-profile.html"
     },
     {
+      "src": "/login.html",
+      "dest": "/web/login.html"
+    },
+    {
       "src": "/",
       "dest": "/web/index.html"
     }
