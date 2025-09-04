@@ -1,11 +1,11 @@
 const { PrismaClient } = require('@prisma/client');
 
-const prisma = new PrismaClient();
-
 // Test invite codes for development - bypass database
 const testCodes = ['TEST01', 'TEST02', 'DEMO01', 'DEMO02', 'DEV001', 'HOMIE1', 'INVITE'];
 
-export default async function handler(req, res) {
+let prisma;
+
+module.exports = async function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -29,7 +29,7 @@ export default async function handler(req, res) {
 
     const codeUpper = code.toUpperCase();
 
-    // Check test codes first
+    // Check test codes first - always allow these
     if (testCodes.includes(codeUpper)) {
       console.log('Valid test code used:', codeUpper);
       return res.json({
@@ -39,6 +39,20 @@ export default async function handler(req, res) {
       });
     }
 
+    // Initialize Prisma client if not already done
+    if (!prisma) {
+      try {
+        prisma = new PrismaClient();
+      } catch (prismaError) {
+        console.error('Failed to initialize Prisma:', prismaError);
+        return res.status(500).json({ 
+          valid: false, 
+          reason: 'database_unavailable',
+          message: 'Database connection failed' 
+        });
+      }
+    }
+
     // For real codes, check database
     let invite;
     try {
@@ -46,17 +60,12 @@ export default async function handler(req, res) {
         where: { code: codeUpper },
       });
     } catch (dbError) {
-      console.error('Database error:', dbError);
-      // If database fails, allow test codes as fallback
-      if (testCodes.includes(codeUpper)) {
-        console.log('Falling back to test code due to DB error:', codeUpper);
-        return res.json({
-          valid: true,
-          remaining: 999,
-          expiresAt: null
-        });
-      }
-      throw dbError;
+      console.error('Database query error:', dbError);
+      return res.status(500).json({ 
+        valid: false, 
+        reason: 'database_error',
+        message: 'Failed to verify invite code' 
+      });
     }
 
     if (!invite || !invite.isActive) {
