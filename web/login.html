@@ -158,22 +158,39 @@ Need a different invite code?
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// Initialize Supabase using shared config
-const supabaseClient = window.supabase.createClient(
-  window.SUPABASE_CONFIG?.url || 'https://your-project.supabase.co',
-  window.SUPABASE_CONFIG?.anonKey || 'your-supabase-anon-key',
-  {
-    auth: {
-      autoRefreshToken: true,
-      persistSession: true,
-      detectSessionInUrl: true
-    }
-  }
-);
+// Initialize Supabase after config loads
+let supabase = null;
 
-// Use the same variable name for compatibility
-const supabase = supabaseClient;
-console.log('Supabase initialized with shared config');
+async function initializeSupabase() {
+  // Wait for config to load
+  let attempts = 0;
+  while (!window.SUPABASE_CONFIG && attempts < 50) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+    attempts++;
+  }
+  
+  if (!window.SUPABASE_CONFIG) {
+    console.error('Failed to load Supabase config');
+    return;
+  }
+  
+  supabase = window.supabase.createClient(
+    window.SUPABASE_CONFIG.url,
+    window.SUPABASE_CONFIG.anonKey,
+    {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true
+      }
+    }
+  );
+  
+  console.log('Supabase initialized with environment config');
+}
+
+// Initialize on page load
+initializeSupabase();
 
 // Check if user has verified invite code
 const verifiedCode = localStorage.getItem('verifiedInviteCode');
