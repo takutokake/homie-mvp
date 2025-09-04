@@ -169,7 +169,7 @@ verifyBtn.addEventListener('click', async () => {
       // Store the verified code and redirect to login page
       localStorage.setItem('verifiedInviteCode', code);
       setTimeout(() => {
-        window.location.href = '/login.html';
+        window.location.href = '/web/login.html';
       }, 1000);
     } else {
       hint.textContent = `not valid (${data.reason || 'unknown'})`;
