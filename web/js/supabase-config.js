@@ -1,32 +1,11 @@
-// Supabase configuration - loaded from environment variables
-window.SUPABASE_CONFIG = null;
+// Supabase configuration
+// IMPORTANT: Replace these with your actual Supabase values from your .env file
+window.SUPABASE_CONFIG = {
+  url: 'https://your-project.supabase.co',  // Replace with SUPABASE_URL from .env
+  anonKey: 'your-supabase-anon-key'         // Replace with SUPABASE_ANON_KEY from .env
+};
 
-// Load Supabase config from API endpoint
-async function loadSupabaseConfig() {
-  try {
-    const response = await fetch('/api/config');
-    const config = await response.json();
-    
-    window.SUPABASE_CONFIG = {
-      url: config.supabaseUrl,
-      anonKey: config.supabaseAnonKey
-    };
-    
-    console.log('Supabase config loaded from environment');
-    return window.SUPABASE_CONFIG;
-  } catch (error) {
-    console.error('Failed to load Supabase config:', error);
-    // Fallback to placeholder values
-    window.SUPABASE_CONFIG = {
-      url: 'https://your-project.supabase.co',
-      anonKey: 'your-supabase-anon-key'
-    };
-    return window.SUPABASE_CONFIG;
-  }
-}
-
-// Initialize config on load
-loadSupabaseConfig();
+console.log('Supabase config initialized');
 
 // Create Supabase client for invite verification
 const supabase = {

@@ -164,20 +164,21 @@ let supabase = null;
 async function initializeSupabase() {
   if (supabase) return supabase; // Already initialized
   
-  // Wait for config to load
-  let attempts = 0;
-  while (!window.SUPABASE_CONFIG && attempts < 50) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-    attempts++;
-  }
-  
+  // Config should be available immediately now
   if (!window.SUPABASE_CONFIG) {
-    console.error('Failed to load Supabase config after 5 seconds');
+    console.error('SUPABASE_CONFIG not found');
     return null;
   }
   
   if (!window.SUPABASE_CONFIG.url || !window.SUPABASE_CONFIG.anonKey) {
-    console.error('Invalid Supabase config:', window.SUPABASE_CONFIG);
+    console.error('Please update supabase-config.js with your actual Supabase credentials');
+    alert('Supabase configuration missing. Please contact support.');
+    return null;
+  }
+  
+  if (window.SUPABASE_CONFIG.url.includes('your-project') || window.SUPABASE_CONFIG.anonKey.includes('your-supabase')) {
+    console.error('Placeholder Supabase values detected. Please update with real credentials.');
+    alert('Please update Supabase configuration with your actual project values.');
     return null;
   }
   
@@ -194,11 +195,7 @@ async function initializeSupabase() {
       }
     );
     
-    console.log('Supabase initialized successfully with config:', {
-      url: window.SUPABASE_CONFIG.url,
-      hasKey: !!window.SUPABASE_CONFIG.anonKey
-    });
-    
+    console.log('Supabase initialized successfully');
     return supabase;
   } catch (error) {
     console.error('Failed to create Supabase client:', error);
