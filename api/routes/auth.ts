@@ -297,7 +297,7 @@ router.post('/signin', async (req, res) => {
 router.post('/complete-profile', async (req, res) => {
   try {
     const { 
-      username, code, displayName, phoneNumber, school, locationDetails, 
+      username, code, email, displayName, phoneNumber, school, locationDetails, 
       priceRange, meetingPreference, interests, cuisinePreferences 
     } = req.body;
 
@@ -337,14 +337,25 @@ router.post('/complete-profile', async (req, res) => {
         throw new Error('username_taken');
       }
 
-      // Get user's email from Supabase session (this would need auth middleware in real implementation)
-      // For now, we'll need to get it from the frontend
-      // This is a simplified version - in production you'd verify the Supabase JWT
+      // Get email from request body (passed from frontend)
+      const { email } = req.body;
       
-      // For now, create user without email (will be updated when we have proper auth)
+      if (!email) {
+        throw new Error('email_required');
+      }
+      
+      // Check if email already exists
+      const existingEmailUser = await tx.user.findFirst({
+        where: { email }
+      });
+
+      if (existingEmailUser) {
+        throw new Error('email_taken');
+      }
+      
       const user = await tx.user.create({
         data: {
-          email: `temp_${username}@example.com`, // Temporary - should be from Supabase
+          email,
           username,
           displayName,
           phoneNumber,
@@ -388,6 +399,12 @@ router.post('/complete-profile', async (req, res) => {
     }
     if (error.message === 'username_taken') {
       return res.status(409).json({ error: 'username_taken' });
+    }
+    if (error.message === 'email_taken') {
+      return res.status(409).json({ error: 'email_taken' });
+    }
+    if (error.message === 'email_required') {
+      return res.status(400).json({ error: 'email_required' });
     }
     
     return res.status(500).json({ error: 'profile_completion_failed' });

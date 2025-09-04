@@ -213,10 +213,12 @@
 <script>
 const submitBtn = document.getElementById('submit-btn');
 
-// Get invite code from localStorage (set by login page)
+// Get invite code and email from localStorage (set by login page)
 const inviteCode = localStorage.getItem('verifiedInviteCode');
+const newUserEmail = localStorage.getItem('newUserEmail');
 
-if (!inviteCode) {
+// Only redirect if we're not coming from OAuth callback and no invite code
+if (!inviteCode && !window.location.search.includes('oauth=callback')) {
   alert('No verified invite code found. Please start from the login page.');
   window.location.href = '/web/login.html';
 }
@@ -262,13 +264,17 @@ document.getElementById('signup-form').addEventListener('submit', async (e) => {
     const res = await fetch('/api/auth/complete-profile', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(profileData)
+      body: JSON.stringify({
+        ...profileData,
+        email: newUserEmail // Include email for new users
+      })
     });
     
     const data = await res.json();
     
     if (res.ok) {
       localStorage.removeItem('verifiedInviteCode');
+      localStorage.removeItem('newUserEmail');
       alert('Profile completed successfully! Welcome to Homie!');
       window.location.href = '/web/';
     } else {

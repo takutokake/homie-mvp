@@ -183,9 +183,9 @@ Continue with Google
 <!-- Sign Up Link -->
 <div class="text-center">
 <p class="text-sm text-gray-500">
-Don't have an account?
+New user? Fill in email/password above, then
 <button id="create-account-btn" class="font-medium text-[#FDAA25] hover:text-[#fbc256] underline">
-Create one
+Create Account
 </button>
 </p>
 </div>
@@ -356,16 +356,56 @@ loginForm.addEventListener('submit', async (e) => {
   }
 });
 
-// Create Account Button
-createAccountBtn.addEventListener('click', () => {
+// Create Account Button - for new users who need to create account with email/password
+createAccountBtn.addEventListener('click', async () => {
   if (!verifiedInviteCode) {
     alert('Please verify your invite code first');
     return;
   }
   
-  // Store the verified invite code and redirect to signup
-  localStorage.setItem('verifiedInviteCode', verifiedInviteCode);
-  window.location.href = '/web/signup.html';
+  if (!supabase) {
+    alert('Authentication system not ready. Please refresh and try again.');
+    return;
+  }
+  
+  // Get email and password from the form
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  
+  if (!email || !password) {
+    alert('Please enter email and password to create account');
+    return;
+  }
+  
+  createAccountBtn.textContent = 'Creating Account...';
+  createAccountBtn.disabled = true;
+  
+  try {
+    // Create user with Supabase Auth
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email,
+      password
+    });
+    
+    if (authError) {
+      throw new Error(authError.message);
+    }
+    
+    if (!authData.user) {
+      throw new Error('Failed to create user account');
+    }
+    
+    // Store the verified invite code and redirect to profile completion
+    localStorage.setItem('verifiedInviteCode', verifiedInviteCode);
+    localStorage.setItem('newUserEmail', email);
+    alert('Account created! Please complete your profile.');
+    window.location.href = '/web/signup.html';
+  } catch (error) {
+    console.error('Account creation error:', error);
+    alert(error.message || 'Account creation failed - please try again');
+    createAccountBtn.disabled = false;
+    createAccountBtn.textContent = 'Create one';
+  }
 });
 
 // Handle OAuth callback
