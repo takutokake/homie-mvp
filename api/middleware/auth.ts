@@ -19,20 +19,31 @@ export async function authenticateToken(req: AuthenticatedRequest, res: Response
     // Verify the Supabase JWT token
     const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
     
-    if (error || !user) {
+    if (error || !user || !user.email) {
       return res.status(401).json({ error: 'invalid_token' });
     }
 
-    // Check if user exists in our database and is active
-    const dbUser = await prisma.user.findFirst({
+    // Get or create user in our database
+    let dbUser = await prisma.user.findFirst({
       where: {
-        email: user.email,
-        isActive: true
+        email: user.email
       }
     });
 
     if (!dbUser) {
-      return res.status(401).json({ error: 'user_not_found' });
+      // Create new user with temporary values for required fields
+      const tempUsername = `user_${Math.random().toString(36).substring(2, 10)}`;
+      dbUser = await prisma.user.create({
+        data: {
+          email: user.email,
+          username: tempUsername,
+          displayName: user.email.split('@')[0], // Temporary display name from email
+          isActive: true,
+          profileCompleted: false
+        }
+      });
+    } else if (!dbUser.isActive) {
+      return res.status(401).json({ error: 'user_inactive' });
     }
 
     req.userId = dbUser.id;
