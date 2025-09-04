@@ -1,5 +1,6 @@
 {
   "rewrites": [
+    { "source": "/auth/v1/callback", "destination": "/api/server.ts" },
     { "source": "/api/:path*", "destination": "/api/server.ts" },
     { "source": "/invite.html", "destination": "/web/invite.html" },
     { "source": "/login.html", "destination": "/web/login.html" },

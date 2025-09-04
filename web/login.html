@@ -165,7 +165,13 @@ async function initSupabase() {
   try {
     const response = await fetch('/api/auth/config');
     const config = await response.json();
-    supabase = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
+    supabase = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey, {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true
+      }
+    });
   } catch (error) {
     console.error('Failed to initialize Supabase:', error);
   }
@@ -188,10 +194,21 @@ document.getElementById('google-btn').addEventListener('click', async () => {
   }
   
   try {
+    const redirectUrl = `${window.location.origin}/auth/v1/callback`;
+    console.log('Redirect URL:', redirectUrl);
+    // Store invite code in session storage before redirect
+    const inviteCode = localStorage.getItem('verifiedInviteCode');
+    sessionStorage.setItem('pendingInviteCode', inviteCode);
+
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `https://homie-mvp-101.vercel.app/login.html?oauth=callback`
+        redirectTo: redirectUrl,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+          state: inviteCode // Pass invite code in state parameter
+        }
       }
     });
     
@@ -300,29 +317,42 @@ document.getElementById('signup-btn').addEventListener('click', async () => {
 
 // Handle OAuth callback
 async function handleOAuthCallback() {
+  console.log('Starting OAuth callback handling...');
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get('oauth') === 'callback') {
     try {
       const { data: { user }, error } = await supabase.auth.getUser();
+      console.log('Auth user:', user);
+      console.log('Auth error:', error);
       
       if (error || !user) {
         throw new Error('Failed to get user information');
       }
       
+      // Get stored invite code
+      const storedCode = sessionStorage.getItem('pendingInviteCode');
+      console.log('Retrieved invite code:', storedCode);
+      if (!storedCode) {
+        throw new Error('Missing invite code');
+      }
+      
       // Check if user needs profile completion
+      console.log('Sending OAuth callback to backend...');
       const response = await fetch('/api/auth/oauth-callback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           user: user,
-          code: verifiedCode
+          code: storedCode
         })
       });
       
       const data = await response.json();
+      console.log('Backend response:', data);
       
       if (response.ok) {
         localStorage.removeItem('verifiedInviteCode');
+        sessionStorage.removeItem('pendingInviteCode');
         
         if (data.needsProfileCompletion) {
           window.location.href = '/profile.html';

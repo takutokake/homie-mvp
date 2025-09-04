@@ -34,10 +34,30 @@ app.use(helmet({
   }
 }));
 
-app.use(cors({
-  origin: ['https://homie-mvp-101.vercel.app', 'http://localhost:3000', 'http://127.0.0.1:3000'],
-  credentials: true
-}));
+// CORS configuration
+const corsOptions = {
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    const allowedOrigins = [
+      'https://homie-mvp-101.vercel.app',
+      'http://localhost:3000',
+      'http://127.0.0.1:3000'
+    ];
+    
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1 || origin.endsWith('.vercel.app')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+app.use(cors(corsOptions));
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
@@ -64,6 +84,12 @@ app.use(generalLimit);
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/invites', inviteRoutes);
+
+// Supabase auth callback handler
+app.get('/auth/v1/callback', (req, res) => {
+  // Redirect to login page with oauth=callback parameter
+  res.redirect('/login.html?oauth=callback');
+});
 
 // Serve static files from web directory
 app.use('/web', express.static(path.join(__dirname, '../web')));
