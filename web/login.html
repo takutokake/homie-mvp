@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8"/>
+<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Inter%3Awght%40400%3B500%3B700%3B900&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900" onload="this.rel='stylesheet'" rel="stylesheet"/>
+<title>Homie - Login</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style type="text/tailwindcss">
+        :root {
+            --homie-orange: #FDAA25;
+            --homie-violet: #CE7AFF;
+            --violet-glow: 0 0 10px rgba(206, 122, 255, 0.5), 0 0 20px rgba(206, 122, 255, 0.3);
+            --orange-glow: 0 0 15px rgba(253, 170, 37, 0.6), 0 0 30px rgba(253, 170, 37, 0.4);
+            --orange-glow-strong: 0 0 25px rgba(253, 170, 37, 0.8), 0 0 50px rgba(253, 170, 37, 0.6);
+        }
+        @keyframes glow-shift {
+            0% {
+                box-shadow: var(--violet-glow);
+                border-color: #CE7AFF;
+            }
+            100% {
+                box-shadow: var(--orange-glow);
+                border-color: #FDAA25;
+            }
+        }
+        .form-input:focus {
+            caret-color: #FDAA25;
+            animation: glow-shift 0.5s forwards;
+        }
+        .primary-cta {
+            box-shadow: var(--orange-glow);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+        .primary-cta:hover {
+            transform: scale(1.05);
+            box-shadow: var(--orange-glow-strong);
+        }
+        .primary-cta:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .bg-grid {
+            background-image:
+                linear-gradient(to right, rgba(253, 170, 37, 0.1) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(253, 170, 37, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        @keyframes pulse-dots {
+            0%, 100% {
+                opacity: 0.2;
+                transform: scale(0.8);
+            }
+            50% {
+                opacity: 0.6;
+                transform: scale(1.2);
+            }
+        }
+        .glowing-dot {
+            width: 4px;
+            height: 4px;
+            background-color: #FDAA25;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #FDAA25, 0 0 12px #FDAA25;
+            animation: pulse-dots 4s infinite ease-in-out;
+        }
+        .glowing-dot:nth-child(1) { animation-delay: 0s; }
+        .glowing-dot:nth-child(2) { animation-delay: 1s; }
+        .glowing-dot:nth-child(3) { animation-delay: 2s; }
+        .glowing-dot:nth-child(4) { animation-delay: 3s; }
+        .glowing-dot:nth-child(5) { animation-delay: 0.5s; }
+        .glowing-dot:nth-child(6) { animation-delay: 1.5s; }
+        .glowing-dot:nth-child(7) { animation-delay: 2.5s; }
+        .glowing-dot:nth-child(8) { animation-delay: 3.5s; }
+    </style>
+</head>
+<body class="bg-[#1C160C]">
+<div class="relative flex size-full min-h-screen flex-col bg-[#1C160C] dark group/design-root overflow-hidden" style='font-family: Inter, "Noto Sans", sans-serif;'>
+<div class="absolute inset-0 z-0 bg-grid opacity-50"></div>
+<div class="absolute inset-0 z-0">
+<div class="glowing-dot absolute top-[10%] left-[20%]"></div>
+<div class="glowing-dot absolute top-[20%] left-[80%]"></div>
+<div class="glowing-dot absolute top-[50%] left-[50%]"></div>
+<div class="glowing-dot absolute top-[80%] left-[10%]"></div>
+<div class="glowing-dot absolute top-[90%] left-[90%]"></div>
+<div class="glowing-dot absolute top-[30%] left-[5%]"></div>
+<div class="glowing-dot absolute top-[60%] left-[95%]"></div>
+<div class="glowing-dot absolute top-[5%] left-[60%]"></div>
+</div>
+<div class="relative z-10 layout-container flex h-full grow flex-col">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#4A3C21] px-10 py-3">
+<div class="flex items-center gap-4 text-white">
+<img src="assets/images/homie-logo.png" alt="Homie Logo" class="h-10 w-10"/>
+<h1 class="text-white text-2xl font-bold leading-tight tracking-[-0.015em]">Homie</h1>
+</div>
+</header>
+<main class="flex flex-1 items-center justify-center py-16 px-4">
+<div class="w-full max-w-md space-y-8">
+<div class="text-center">
+<h2 class="text-3xl font-bold text-white">Welcome to Homie</h2>
+<p class="mt-2 text-gray-400">Sign in or create your account to continue.</p>
+</div>
+
+<div class="space-y-6">
+<!-- Google OAuth Button -->
+<button type="button" id="google-btn" class="flex w-full items-center justify-center gap-3 rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-white hover:bg-[#2a2113] transition-all duration-300">
+  <img src="https://www.google.com/favicon.ico" alt="Google" class="w-5 h-5"/>
+  Continue with Google
+</button>
+
+<div class="relative">
+  <div class="absolute inset-0 flex items-center">
+    <div class="w-full border-t border-[#4A3C21]"></div>
+  </div>
+  <div class="relative flex justify-center text-sm">
+    <span class="px-2 bg-[#1C160C] text-gray-400">or</span>
+  </div>
+</div>
+
+<!-- Email/Password Form -->
+<form id="auth-form" class="space-y-4">
+<div>
+<label class="sr-only" for="email">Email</label>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-base text-white placeholder:text-gray-500 focus:outline-none focus:ring-0 transition-all duration-300" 
+  id="email" name="email" placeholder="Email address" required type="email"/>
+</div>
+
+<div>
+<label class="sr-only" for="password">Password</label>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-base text-white placeholder:text-gray-500 focus:outline-none focus:ring-0 transition-all duration-300" 
+  id="password" name="password" placeholder="Password" required type="password"/>
+</div>
+
+<div class="flex gap-2">
+<button id="signin-btn" type="button" class="flex-1 primary-cta flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-[#4A3C21] text-white text-base font-bold leading-normal tracking-wide border border-[#FDAA25]">
+  <span class="truncate">Sign In</span>
+</button>
+<button id="signup-btn" type="button" class="flex-1 primary-cta flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-[#FDAA25] text-[#1C160C] text-base font-bold leading-normal tracking-wide">
+  <span class="truncate">Sign Up</span>
+</button>
+</div>
+</form>
+
+<div class="text-center">
+<p class="text-sm text-gray-500">
+Need a different invite code? 
+<a class="font-medium text-[#FDAA25] hover:text-[#fbc256]" href="/invite.html">Go back</a>
+</p>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// Initialize Supabase
+let supabase;
+
+// Get Supabase config from backend
+async function initSupabase() {
+  try {
+    const response = await fetch('/api/auth/config');
+    const config = await response.json();
+    supabase = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
+  } catch (error) {
+    console.error('Failed to initialize Supabase:', error);
+  }
+}
+
+initSupabase();
+
+// Check if user has verified invite code
+const verifiedCode = localStorage.getItem('verifiedInviteCode');
+if (!verifiedCode) {
+  alert('Please verify your invite code first.');
+  window.location.href = '/invite.html';
+}
+
+// Google OAuth
+document.getElementById('google-btn').addEventListener('click', async () => {
+  if (!supabase) {
+    alert('Authentication system not ready. Please refresh and try again.');
+    return;
+  }
+  
+  try {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/login.html?oauth=callback`
+      }
+    });
+    
+    if (error) {
+      console.error('OAuth error:', error);
+      alert('Failed to initiate Google sign-in');
+    }
+  } catch (error) {
+    console.error('Google sign-in error:', error);
+    alert('Failed to initiate Google sign-in');
+  }
+});
+
+// Sign In
+document.getElementById('signin-btn').addEventListener('click', async () => {
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  
+  if (!email || !password) {
+    alert('Please enter both email and password');
+    return;
+  }
+  
+  if (!supabase) {
+    alert('Authentication system not ready. Please refresh and try again.');
+    return;
+  }
+  
+  const btn = document.getElementById('signin-btn');
+  btn.textContent = 'Signing In...';
+  btn.disabled = true;
+  
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+    
+    if (error) {
+      throw new Error(error.message);
+    }
+    
+    // Clear the invite code since they're signing in (not signing up)
+    localStorage.removeItem('verifiedInviteCode');
+    
+    // Redirect to dashboard or home
+    window.location.href = '/';
+  } catch (error) {
+    console.error('Sign in error:', error);
+    alert(error.message || 'Sign in failed - please try again');
+    btn.textContent = 'Sign In';
+    btn.disabled = false;
+  }
+});
+
+// Sign Up
+document.getElementById('signup-btn').addEventListener('click', async () => {
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  
+  if (!email || !password) {
+    alert('Please enter both email and password');
+    return;
+  }
+  
+  if (password.length < 8) {
+    alert('Password must be at least 8 characters');
+    return;
+  }
+  
+  if (!supabase) {
+    alert('Authentication system not ready. Please refresh and try again.');
+    return;
+  }
+  
+  const btn = document.getElementById('signup-btn');
+  btn.textContent = 'Creating Account...';
+  btn.disabled = true;
+  
+  try {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password
+    });
+    
+    if (error) {
+      throw new Error(error.message);
+    }
+    
+    if (!data.user) {
+      throw new Error('Failed to create user account');
+    }
+    
+    // Store email for profile completion
+    localStorage.setItem('signupEmail', email);
+    
+    // Redirect to profile completion
+    window.location.href = '/profile.html';
+  } catch (error) {
+    console.error('Sign up error:', error);
+    alert(error.message || 'Sign up failed - please try again');
+    btn.textContent = 'Sign Up';
+    btn.disabled = false;
+  }
+});
+
+// Handle OAuth callback
+async function handleOAuthCallback() {
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('oauth') === 'callback') {
+    try {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      
+      if (error || !user) {
+        throw new Error('Failed to get user information');
+      }
+      
+      // Check if user needs profile completion
+      const response = await fetch('/api/auth/oauth-callback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user: user,
+          code: verifiedCode
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        localStorage.removeItem('verifiedInviteCode');
+        
+        if (data.needsProfileCompletion) {
+          window.location.href = '/profile.html';
+        } else {
+          window.location.href = '/';
+        }
+      } else {
+        throw new Error(data.error || 'OAuth callback failed');
+      }
+    } catch (error) {
+      console.error('OAuth callback error:', error);
+      alert(error.message || 'Failed to complete Google sign-in');
+      window.location.href = '/login.html';
+    }
+  }
+}
+
+// Check for OAuth callback on page load
+if (window.location.search.includes('oauth=callback')) {
+  setTimeout(handleOAuthCallback, 1000);
+}
+</script>
+
+</body></html>

@@ -1,6 +1,9 @@
 {
   "rewrites": [
     { "source": "/api/:path*", "destination": "/api/server.ts" },
+    { "source": "/invite.html", "destination": "/web/invite.html" },
+    { "source": "/login.html", "destination": "/web/login.html" },
+    { "source": "/profile.html", "destination": "/web/profile.html" },
     { "source": "/signup.html", "destination": "/web/signup.html" },
     { "source": "/complete-profile.html", "destination": "/web/complete-profile.html" },
     { "source": "/", "destination": "/web/index.html" },
