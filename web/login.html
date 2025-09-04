@@ -6,6 +6,7 @@
 <title>Homie - Login</title>
 <link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="/web/js/supabase-config.js"></script>
 <style type="text/tailwindcss">
         :root {
             --homie-orange: #FDAA25;
@@ -157,27 +158,22 @@ Need a different invite code?
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// Initialize Supabase
-let supabase;
-
-// Get Supabase config from backend
-async function initSupabase() {
-  try {
-    const response = await fetch('/api/auth/config');
-    const config = await response.json();
-    supabase = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey, {
-      auth: {
-        autoRefreshToken: true,
-        persistSession: true,
-        detectSessionInUrl: true
-      }
-    });
-  } catch (error) {
-    console.error('Failed to initialize Supabase:', error);
+// Initialize Supabase using shared config
+const supabaseClient = window.supabase.createClient(
+  window.SUPABASE_CONFIG?.url || 'https://your-project.supabase.co',
+  window.SUPABASE_CONFIG?.anonKey || 'your-supabase-anon-key',
+  {
+    auth: {
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: true
+    }
   }
-}
+);
 
-initSupabase();
+// Use the same variable name for compatibility
+const supabase = supabaseClient;
+console.log('Supabase initialized with shared config');
 
 // Check if user has verified invite code
 const verifiedCode = localStorage.getItem('verifiedInviteCode');
