@@ -1,38 +1,12 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "api/server.ts",
-      "use": "@vercel/node",
-      "config": {
-        "includeFiles": ["prisma/schema.prisma"]
-      }
-    },
-    {
-      "src": "web/**",
-      "use": "@vercel/static"
-    }
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "/api/server.ts" },
+    { "source": "/signup.html", "destination": "/web/signup.html" },
+    { "source": "/complete-profile.html", "destination": "/web/complete-profile.html" },
+    { "source": "/", "destination": "/web/index.html" },
+    { "source": "/:path*", "destination": "/web/:path*" }
   ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/server.ts"
-    },
-    {
-      "src": "/web/(.*)",
-      "dest": "/web/$1"
-    },
-    {
-      "src": "/signup.html",
-      "dest": "/web/signup.html"
-    },
-    {
-      "src": "/complete-profile.html",
-      "dest": "/web/complete-profile.html"
-    },
-    {
-      "src": "/",
-      "dest": "/web/index.html"
-    }
-  ]
+  "buildCommand": "prisma generate && tsc",
+  "outputDirectory": "web",
+  "public": true
 }
