@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+    <link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Inter%3Awght%40400%3B500%3B700%3B900&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900" onload="this.rel='stylesheet'" rel="stylesheet"/>
+    <title>Homie - Success</title>
+    <link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style type="text/tailwindcss">
+        :root {
+            --homie-orange: #FDAA25;
+            --homie-violet: #CE7AFF;
+            --violet-glow: 0 0 10px rgba(206, 122, 255, 0.5), 0 0 20px rgba(206, 122, 255, 0.3);
+            --orange-glow: 0 0 15px rgba(253, 170, 37, 0.6), 0 0 30px rgba(253, 170, 37, 0.4);
+        }
+        .bg-grid {
+            background-image:
+                linear-gradient(to right, rgba(253, 170, 37, 0.1) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(253, 170, 37, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        @keyframes pulse-dots {
+            0%, 100% {
+                opacity: 0.2;
+                transform: scale(0.8);
+            }
+            50% {
+                opacity: 0.6;
+                transform: scale(1.2);
+            }
+        }
+        .glowing-dot {
+            width: 4px;
+            height: 4px;
+            background-color: #FDAA25;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #FDAA25, 0 0 12px #FDAA25;
+            animation: pulse-dots 4s infinite ease-in-out;
+        }
+        .glowing-dot:nth-child(1) { animation-delay: 0s; }
+        .glowing-dot:nth-child(2) { animation-delay: 1s; }
+        .glowing-dot:nth-child(3) { animation-delay: 2s; }
+        .glowing-dot:nth-child(4) { animation-delay: 3s; }
+    </style>
+</head>
+<body class="bg-[#1C160C]">
+    <div class="relative flex size-full min-h-screen flex-col bg-[#1C160C] dark group/design-root overflow-hidden" style='font-family: Inter, "Noto Sans", sans-serif;'>
+        <div class="absolute inset-0 z-0 bg-grid opacity-50"></div>
+        <div class="absolute inset-0 z-0">
+            <div class="glowing-dot absolute top-[10%] left-[20%]"></div>
+            <div class="glowing-dot absolute top-[20%] left-[80%]"></div>
+            <div class="glowing-dot absolute top-[50%] left-[50%]"></div>
+            <div class="glowing-dot absolute top-[80%] left-[10%]"></div>
+        </div>
+        <div class="relative z-10 layout-container flex h-full grow flex-col">
+            <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#4A3C21] px-10 py-3">
+                <div class="flex items-center gap-4 text-white">
+                    <img src="assets/images/homie-logo.png" alt="Homie Logo" class="h-10 w-10"/>
+                    <h1 class="text-white text-2xl font-bold leading-tight tracking-[-0.015em]">Homie</h1>
+                </div>
+            </header>
+            <main class="flex flex-1 items-center justify-center py-16 px-4">
+                <div class="w-full max-w-md space-y-8 text-center">
+                    <div class="space-y-4">
+                        <h2 class="text-3xl font-bold text-white">Thank You for Joining Homie!</h2>
+                        <div class="flex justify-center">
+                            <div class="w-16 h-16 rounded-full bg-[#FDAA25] flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-[#1C160C]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="text-xl text-gray-400 mt-6">We're excited to have you on board!</p>
+                        <p class="text-gray-400 mt-4">Our team is working on finding the perfect matches for you. We'll notify you as soon as we have some great connections to share.</p>
+                        <p class="text-gray-400 mt-4">In the meantime, feel free to complete your profile and explore the platform.</p>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+    // Generate a signup token
+    const generateSignupToken = () => {
+        const timestamp = Date.now();
+        const random = Math.random().toString(36).substring(2);
+        return `SIGNUP_${timestamp}_${random}`;
+    };
+
+    // Wait for a moment then redirect to profile completion
+    setTimeout(() => {
+        const signupEmail = localStorage.getItem('signupEmail');
+        const inviteCode = localStorage.getItem('verifiedInviteCode');
+        
+        if (signupEmail && inviteCode) {
+            // Generate signup token
+            const signupToken = generateSignupToken();
+            
+            // Store signup token and invite code for profile completion
+            localStorage.setItem('signupToken', signupToken);
+            
+            // Redirect to profile completion with token
+            window.location.href = `/complete-profile.html?token=${encodeURIComponent(signupToken)}`;
+        } else {
+            console.error('Missing signup email or invite code');
+            alert('Something went wrong. Please try signing up again.');
+            window.location.href = '/invite.html';
+        }
+    }, 3000); // Wait 3 seconds before redirecting
+    </script>
+</body>
+</html>

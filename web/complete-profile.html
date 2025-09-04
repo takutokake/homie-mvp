@@ -163,17 +163,21 @@
                 const config = await response.json();
                 supabase = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
                 
-                // Check for signup token in URL or session
-                const urlParams = new URLSearchParams(window.location.search);
-                const signupToken = urlParams.get('signup_token');
+                // Check for signup token or session token
+                const signupToken = localStorage.getItem('signupToken');
+                const urlToken = new URLSearchParams(window.location.search).get('token');
+                const session = await supabase.auth.getSession();
                 
-                if (!signupToken) {
-                    // If no signup token, verify session
-                    const { data: { session }, error } = await supabase.auth.getSession();
-                    if (!session || error) {
-                        window.location.href = '/web/signup.html';
-                        return;
-                    }
+                if (signupToken && signupToken === urlToken) {
+                    // Use signup token for new user profile completion
+                    headers['Authorization'] = `Bearer ${signupToken}`;
+                } else if (session?.data?.session?.access_token) {
+                    // Use session token for existing user profile updates
+                    headers['Authorization'] = `Bearer ${session.data.session.access_token}`;
+                } else {
+                    alert('Please sign in first.');
+                    window.location.href = '/login.html';
+                    return;
                 }
             } catch (error) {
                 console.error('Failed to initialize Supabase:', error);
@@ -240,15 +244,18 @@
                     body: JSON.stringify(payload)
                 });
                 
-                const data = await response.json();
-                
                 if (response.ok) {
-                    alert('Profile completed successfully!');
-                    window.location.href = '/web/thank-you.html';
+                    const data = await response.json();
+                    console.log('Profile completed:', data);
+                    
+                    // Clear signup-related data after successful profile completion
+                    localStorage.removeItem('signupToken');
+                    localStorage.removeItem('signupEmail');
+                    localStorage.removeItem('verifiedInviteCode');
+                    
+                    window.location.href = '/';
                 } else {
-                    alert(data.error || 'Profile completion failed');
-                    completeBtn.disabled = false;
-                    completeBtn.textContent = 'Complete Profile';
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
             } catch (error) {
                 console.error('Profile completion error:', error);
