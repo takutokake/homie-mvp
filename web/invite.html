@@ -155,7 +155,7 @@ verifyBtn.addEventListener('click', async () => {
   verifyBtn.disabled = true;
   
   try {
-    const res = await fetch('/api/invites/verify', {
+    const res = await fetch('/api/verify-invite', {
       method: 'POST', 
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({ code })
