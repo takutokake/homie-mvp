@@ -10,6 +10,16 @@ router.post('/verify', inviteVerifyLimit, async (req, res) => {
     const { code } = verifyInviteSchema.parse(req.body);
     const codeUpper = code.toUpperCase();
 
+    // Test invite codes for development
+    const testCodes = ['TEST01', 'TEST02', 'DEMO01', 'DEMO02', 'DEV001', 'HOMIE1', 'INVITE'];
+    if (testCodes.includes(codeUpper)) {
+      return res.json({
+        valid: true,
+        remaining: 100,
+        expiresAt: null
+      });
+    }
+
     const invite = await prisma.invite.findUnique({
       where: { code: codeUpper },
     });
