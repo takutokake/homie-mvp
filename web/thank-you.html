@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+    <link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Inter%3Awght%40400%3B500%3B700%3B900&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900" onload="this.rel='stylesheet'" rel="stylesheet"/>
+    <title>Homie - Thank You</title>
+    <link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style type="text/tailwindcss">
+        :root {
+            --homie-orange: #FDAA25;
+            --homie-violet: #CE7AFF;
+            --violet-glow: 0 0 10px rgba(206, 122, 255, 0.5), 0 0 20px rgba(206, 122, 255, 0.3);
+            --orange-glow: 0 0 15px rgba(253, 170, 37, 0.6), 0 0 30px rgba(253, 170, 37, 0.4);
+        }
+        .bg-grid {
+            background-image:
+                linear-gradient(to right, rgba(253, 170, 37, 0.1) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(253, 170, 37, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        @keyframes pulse-dots {
+            0%, 100% {
+                opacity: 0.2;
+                transform: scale(0.8);
+            }
+            50% {
+                opacity: 0.6;
+                transform: scale(1.2);
+            }
+        }
+        .glowing-dot {
+            width: 4px;
+            height: 4px;
+            background-color: #FDAA25;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #FDAA25, 0 0 12px #FDAA25;
+            animation: pulse-dots 4s infinite ease-in-out;
+        }
+        .glowing-dot:nth-child(1) { animation-delay: 0s; }
+        .glowing-dot:nth-child(2) { animation-delay: 1s; }
+        .glowing-dot:nth-child(3) { animation-delay: 2s; }
+        .glowing-dot:nth-child(4) { animation-delay: 3s; }
+        .glowing-dot:nth-child(5) { animation-delay: 0.5s; }
+        .glowing-dot:nth-child(6) { animation-delay: 1.5s; }
+        .glowing-dot:nth-child(7) { animation-delay: 2.5s; }
+        .glowing-dot:nth-child(8) { animation-delay: 3.5s; }
+    </style>
+</head>
+<body class="bg-[#1C160C]">
+    <div class="relative flex size-full min-h-screen flex-col bg-[#1C160C] dark group/design-root overflow-hidden" style='font-family: Inter, "Noto Sans", sans-serif;'>
+        <div class="absolute inset-0 z-0 bg-grid opacity-50"></div>
+        <div class="absolute inset-0 z-0">
+            <div class="glowing-dot absolute top-[10%] left-[20%]"></div>
+            <div class="glowing-dot absolute top-[20%] left-[80%]"></div>
+            <div class="glowing-dot absolute top-[50%] left-[50%]"></div>
+            <div class="glowing-dot absolute top-[80%] left-[10%]"></div>
+            <div class="glowing-dot absolute top-[90%] left-[90%]"></div>
+            <div class="glowing-dot absolute top-[30%] left-[5%]"></div>
+            <div class="glowing-dot absolute top-[60%] left-[95%]"></div>
+            <div class="glowing-dot absolute top-[5%] left-[60%]"></div>
+        </div>
+        <div class="relative z-10 layout-container flex h-full grow flex-col">
+            <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#4A3C21] px-10 py-3">
+                <div class="flex items-center gap-4 text-white">
+                    <img src="assets/images/homie-logo.png" alt="Homie Logo" class="h-10 w-10"/>
+                    <h1 class="text-white text-2xl font-bold leading-tight tracking-[-0.015em]">Homie</h1>
+                </div>
+            </header>
+            <main class="flex flex-1 items-center justify-center py-16 px-4">
+                <div class="w-full max-w-md space-y-8 text-center">
+                    <div class="space-y-4">
+                        <h2 class="text-3xl font-bold text-white">Thank You for Signing Up!</h2>
+                        <p class="text-xl text-gray-300">We're excited to have you join our community.</p>
+                        <div class="mt-6 space-y-4">
+                            <p class="text-gray-400">We'll be reviewing your profile and will get back to you soon with potential matches that share your interests and preferences.</p>
+                            <p class="text-gray-400">Keep an eye on your email for updates!</p>
+                        </div>
+                        <div class="mt-8">
+                            <div class="inline-flex items-center justify-center space-x-2 text-[#FDAA25]">
+                                <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span>Finding your matches...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+</body>
+</html>

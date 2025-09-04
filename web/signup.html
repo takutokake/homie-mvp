@@ -406,7 +406,7 @@ document.getElementById('signup-form').addEventListener('submit', async (e) => {
     
     if (res.ok) {
       alert('Account created successfully! Please check your email to verify your account.');
-      location.href = '/web/'; // redirect to landing
+      location.href = '/web/thank-you.html';
     } else {
       // If profile creation failed, we should clean up the Supabase user
       await supabase.auth.signOut();
