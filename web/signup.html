@@ -492,11 +492,11 @@ async function handleOAuthCallback() {
         localStorage.removeItem('pendingInviteCode');
         
         if (data.needsProfileCompletion) {
-          // Redirect to profile completion
-          window.location.href = '/web/complete-profile.html';
+          // All users go to thank you page
+          window.location.href = '/web/thank-you.html';
         } else {
           // User already has complete profile
-          window.location.href = '/web/';
+          window.location.href = '/web/thank-you.html';
         }
       } else {
         throw new Error(data.error || 'OAuth callback failed');
