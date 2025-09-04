@@ -312,14 +312,8 @@ document.getElementById('signup-btn').addEventListener('click', async () => {
     }
     
     console.log('User created:', data.user);
-    alert('Account created successfully! Please check your email for verification.');
-    
-    // Clear form
-    document.getElementById('signup-email').value = '';
-    document.getElementById('signup-password').value = '';
-    
-    // Switch to sign in
-    showSignIn();
+    // Redirect to complete profile page
+    window.location.href = '/web/complete-profile.html';
     
   } catch (error) {
     console.error('Sign up error:', error);
@@ -408,15 +402,25 @@ document.getElementById('google-signin-btn').addEventListener('click', async () 
 });
 
 // Check if user is already logged in
-supabase.auth.onAuthStateChange((event, session) => {
+supabase.auth.onAuthStateChange(async (event, session) => {
   console.log('Auth state changed:', event, session);
   
   if (event === 'SIGNED_IN' && session) {
     console.log('User is signed in:', session.user);
-    // Redirect to dashboard or home page
-    setTimeout(() => {
+    // Check if profile is completed
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('profile_completed')
+      .eq('id', session.user.id)
+      .single();
+    
+    if (profileError || !profile || !profile.profile_completed) {
+      // Profile not completed, redirect to complete-profile
+      window.location.href = '/web/complete-profile.html';
+    } else {
+      // Profile completed, redirect to home
       window.location.href = '/';
-    }, 1000);
+    }
   }
 });
 </script>
