@@ -131,9 +131,15 @@
 <!-- Auth Options Section (Hidden by default) -->
 <div id="auth-section" class="space-y-6 hidden">
 <div class="flex flex-col gap-4">
+<div class="flex justify-center mb-4">
+  <div class="inline-flex rounded-lg border border-[#4A3C21] p-1">
+    <button type="button" onclick="toggleAuthMode('signup')" id="signup-tab" class="px-4 py-2 rounded-md text-sm font-medium text-white bg-[#231C10] focus:outline-none">Sign Up</button>
+    <button type="button" onclick="toggleAuthMode('login')" id="login-tab" class="px-4 py-2 rounded-md text-sm font-medium text-gray-400 hover:text-white focus:outline-none">Login</button>
+  </div>
+</div>
 <button type="button" onclick="googleWithInvite()" class="flex w-full items-center justify-center gap-3 rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-white hover:bg-[#2a2113] transition-all duration-300">
   <img src="https://www.google.com/favicon.ico" alt="Google" class="w-5 h-5"/>
-  Continue with Google
+  <span id="google-btn-text">Continue with Google</span>
 </button>
 <div class="relative">
   <div class="absolute inset-0 flex items-center">
@@ -405,8 +411,7 @@ document.getElementById('signup-form').addEventListener('submit', async (e) => {
     const data = await res.json();
     
     if (res.ok) {
-      alert('Account created successfully! Please check your email to verify your account.');
-      location.href = '/web/thank-you.html';
+      location.href = '/web/complete-profile.html';
     } else {
       // If profile creation failed, we should clean up the Supabase user
       await supabase.auth.signOut();
@@ -422,6 +427,8 @@ document.getElementById('signup-form').addEventListener('submit', async (e) => {
 
 // Google sign-in with Supabase Auth
 async function googleWithInvite() {
+  // Use the current auth mode for Google sign in
+  const isLogin = authMode === 'login';
   const code = inviteInput.value.trim();
   if (!/^[A-Z0-9]{6}$/.test(code)) { 
     hint.textContent = 'enter a valid invite first'; 
@@ -435,8 +442,9 @@ async function googleWithInvite() {
   }
   
   try {
-    // Store invite code in localStorage for OAuth callback
+    // Store invite code and auth mode in localStorage for OAuth callback
     localStorage.setItem('pendingInviteCode', code);
+    localStorage.setItem('authMode', authMode);
     
     // Initiate Google OAuth with Supabase
     const { data, error } = await supabase.auth.signInWithOAuth({
@@ -461,6 +469,7 @@ async function handleOAuthCallback() {
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get('oauth') === 'callback') {
     const inviteCode = localStorage.getItem('pendingInviteCode');
+    const authMode = localStorage.getItem('authMode') || 'signup';
     
     if (!inviteCode) {
       alert('Invite code missing. Please try signing up again.');
@@ -476,7 +485,29 @@ async function handleOAuthCallback() {
         throw new Error('Failed to get user information');
       }
       
-      // Send user data and invite code to backend
+      // For login mode, check if user exists first
+      if (authMode === 'login') {
+        const userCheckResponse = await fetch('/api/auth/check-user', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: user.email })
+        });
+        
+        const userData = await userCheckResponse.json();
+        if (!userCheckResponse.ok) {
+          throw new Error('This email is not registered. Please sign up first.');
+        }
+        
+        if (!userData.profileCompleted) {
+          window.location.href = '/web/complete-profile.html';
+          return;
+        } else {
+          window.location.href = '/web/thank-you.html';
+          return;
+        }
+      }
+      
+      // For signup mode, create new user profile
       const response = await fetch('/api/auth/oauth-callback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -492,11 +523,11 @@ async function handleOAuthCallback() {
         localStorage.removeItem('pendingInviteCode');
         
         if (data.needsProfileCompletion) {
-          // All users go to thank you page
-          window.location.href = '/web/thank-you.html';
+          // All users complete their profile
+          window.location.href = '/web/complete-profile.html';
         } else {
-          // User already has complete profile
-          window.location.href = '/web/thank-you.html';
+          // User completes their profile
+          window.location.href = '/web/complete-profile.html';
         }
       } else {
         throw new Error(data.error || 'OAuth callback failed');
@@ -516,9 +547,30 @@ if (window.location.search.includes('oauth=callback')) {
   setTimeout(handleOAuthCallback, 1000);
 }
 
-function showLoginForm() {
-  // TODO: Implement login form toggle or redirect to login page
-  alert('Login functionality coming soon!');
+let authMode = 'signup';
+
+function toggleAuthMode(mode) {
+  authMode = mode;
+  const signupTab = document.getElementById('signup-tab');
+  const loginTab = document.getElementById('login-tab');
+  const googleBtnText = document.getElementById('google-btn-text');
+  const submitBtn = document.getElementById('submit-btn');
+
+  if (mode === 'login') {
+    loginTab.classList.add('bg-[#231C10]', 'text-white');
+    loginTab.classList.remove('text-gray-400');
+    signupTab.classList.remove('bg-[#231C10]', 'text-white');
+    signupTab.classList.add('text-gray-400');
+    googleBtnText.textContent = 'Sign in with Google';
+    submitBtn.innerHTML = '<span class="truncate">Sign In</span>';
+  } else {
+    signupTab.classList.add('bg-[#231C10]', 'text-white');
+    signupTab.classList.remove('text-gray-400');
+    loginTab.classList.remove('bg-[#231C10]', 'text-white');
+    loginTab.classList.add('text-gray-400');
+    googleBtnText.textContent = 'Continue with Google';
+    submitBtn.innerHTML = '<span class="truncate">Sign Up</span>';
+  }
 }
 </script>
 
