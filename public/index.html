@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Homie - Never Meet Alone</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style type="text/tailwindcss">
+    :root {
+      --homie-orange: #FDAA25;
+      --homie-violet: #CE7AFF;
+    }
+    body {
+        font-family: 'Inter', sans-serif;
+    }
+    .hero-bg {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        background-color: #000;
+    }
+    .hero-bg canvas {
+        width: 100%;
+        height: 100%;
+        opacity: 0.6;
+    }
+    .cta-button {
+        background: linear-gradient(135deg, var(--homie-orange) 0%, var(--homie-violet) 100%);
+        box-shadow: 0 8px 32px rgba(253, 170, 37, 0.3);
+        transition: all 0.3s ease;
+    }
+    .cta-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 40px rgba(253, 170, 37, 0.4);
+    }
+    .feature-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+    }
+    .feature-card:hover {
+        background: rgba(255, 255, 255, 0.08);
+        transform: translateY(-4px);
+    }
+</style>
+</head>
+<body class="bg-black text-white overflow-x-hidden">
+    <div class="hero-bg">
+        <canvas id="particleCanvas"></canvas>
+    </div>
+    
+    <div class="relative z-10 min-h-screen flex flex-col">
+        <!-- Header -->
+        <header class="p-6 flex justify-between items-center">
+            <div class="text-2xl font-black">
+                <span style="color: var(--homie-orange);">homie</span>
+            </div>
+        </header>
+
+        <!-- Hero Section -->
+        <main class="flex-1 flex items-center justify-center px-6">
+            <div class="max-w-4xl mx-auto text-center">
+                <h1 class="text-5xl md:text-7xl font-black mb-6 leading-tight">
+                    Never Meet
+                    <span class="block" style="color: var(--homie-violet);">Alone</span>
+                </h1>
+                
+                <p class="text-xl md:text-2xl text-gray-300 mb-12 max-w-2xl mx-auto leading-relaxed">
+                    Connect with fellow students for safe, group dining experiences. 
+                    Build community while staying secure.
+                </p>
+                
+                <div class="space-y-6">
+                    <button onclick="window.location.href='/login.html'" class="cta-button text-black font-bold text-lg px-12 py-4 rounded-full inline-block">
+                        Enter with Invite
+                    </button>
+                    
+                    <p class="text-sm text-gray-400">
+                        Invite-only beta • USC & UCLA students
+                    </p>
+                </div>
+            </div>
+        </main>
+
+        <!-- Features Section -->
+        <section class="px-6 pb-20">
+            <div class="max-w-6xl mx-auto">
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="feature-card p-8 rounded-2xl text-center">
+                        <div class="text-4xl mb-4">🛡️</div>
+                        <h3 class="text-xl font-bold mb-3">Safe Meetups</h3>
+                        <p class="text-gray-400">Always meet in groups. Never dine alone with strangers.</p>
+                    </div>
+                    
+                    <div class="feature-card p-8 rounded-2xl text-center">
+                        <div class="text-4xl mb-4">🎓</div>
+                        <h3 class="text-xl font-bold mb-3">Student Verified</h3>
+                        <p class="text-gray-400">Connect only with verified USC and UCLA students.</p>
+                    </div>
+                    
+                    <div class="feature-card p-8 rounded-2xl text-center">
+                        <div class="text-4xl mb-4">🍕</div>
+                        <h3 class="text-xl font-bold mb-3">Discover Together</h3>
+                        <p class="text-gray-400">Explore LA's food scene with like-minded peers.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Particle animation
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        const particles = [];
+        const particleCount = 50;
+        
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.size = Math.random() * 2 + 1;
+                this.opacity = Math.random() * 0.5 + 0.2;
+            }
+            
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+            
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(253, 170, 37, ${this.opacity})`;
+                ctx.fill();
+            }
+        }
+        
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+        
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+            
+            // Draw connections
+            particles.forEach((particle, i) => {
+                particles.slice(i + 1).forEach(otherParticle => {
+                    const dx = particle.x - otherParticle.x;
+                    const dy = particle.y - otherParticle.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 100) {
+                        ctx.beginPath();
+                        ctx.moveTo(particle.x, particle.y);
+                        ctx.lineTo(otherParticle.x, otherParticle.y);
+                        ctx.strokeStyle = `rgba(206, 122, 255, ${0.1 * (1 - distance / 100)})`;
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                    }
+                });
+            });
+            
+            requestAnimationFrame(animate);
+        }
+        
+        animate();
+    </script>
+</body>
+</html>

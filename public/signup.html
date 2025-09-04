@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8"/>
+<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Inter%3Awght%40400%3B500%3B700%3B900&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900" onload="this.rel='stylesheet'" rel="stylesheet"/>
+<title>Homie - Sign Up</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style type="text/tailwindcss">
+        :root {
+            --homie-orange: #FDAA25;
+            --homie-violet: #CE7AFF;
+            --violet-glow: 0 0 10px rgba(206, 122, 255, 0.5), 0 0 20px rgba(206, 122, 255, 0.3);
+            --orange-glow: 0 0 15px rgba(253, 170, 37, 0.6), 0 0 30px rgba(253, 170, 37, 0.4);
+            --orange-glow-strong: 0 0 25px rgba(253, 170, 37, 0.8), 0 0 50px rgba(253, 170, 37, 0.6);
+        }
+        @keyframes glow-shift {
+            0% {
+                box-shadow: var(--violet-glow);
+                border-color: #CE7AFF;
+            }
+            100% {
+                box-shadow: var(--orange-glow);
+                border-color: #FDAA25;
+            }
+        }
+        .form-input:focus {
+            caret-color: #FDAA25;
+            animation: glow-shift 0.5s forwards;
+        }
+        .primary-cta {
+            box-shadow: var(--orange-glow);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+        .primary-cta:hover {
+            transform: scale(1.05);
+            box-shadow: var(--orange-glow-strong);
+        }
+        .primary-cta:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .verify-btn {
+            border-color: #FDAA25;
+            color: #FDAA25;
+            transition: all 0.3s ease;
+        }
+        .verify-btn:hover:not(:disabled) {
+            background-color: #FDAA25;
+            color: #1C160C;
+        }
+        .bg-grid {
+            background-image:
+                linear-gradient(to right, rgba(253, 170, 37, 0.1) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(253, 170, 37, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        @keyframes pulse-dots {
+            0%, 100% {
+                opacity: 0.2;
+                transform: scale(0.8);
+            }
+            50% {
+                opacity: 0.6;
+                transform: scale(1.2);
+            }
+        }
+        .glowing-dot {
+            width: 4px;
+            height: 4px;
+            background-color: #FDAA25;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #FDAA25, 0 0 12px #FDAA25;
+            animation: pulse-dots 4s infinite ease-in-out;
+        }
+        .glowing-dot:nth-child(1) { animation-delay: 0s; }
+        .glowing-dot:nth-child(2) { animation-delay: 1s; }
+        .glowing-dot:nth-child(3) { animation-delay: 2s; }
+        .glowing-dot:nth-child(4) { animation-delay: 3s; }
+        .glowing-dot:nth-child(5) { animation-delay: 0.5s; }
+        .glowing-dot:nth-child(6) { animation-delay: 1.5s; }
+        .glowing-dot:nth-child(7) { animation-delay: 2.5s; }
+        .glowing-dot:nth-child(8) { animation-delay: 3.5s; }
+    </style>
+</head>
+<body class="bg-[#1C160C]">
+<div class="relative flex size-full min-h-screen flex-col bg-[#1C160C] dark group/design-root overflow-hidden" style='font-family: Inter, "Noto Sans", sans-serif;'>
+<div class="absolute inset-0 z-0 bg-grid opacity-50"></div>
+<div class="absolute inset-0 z-0">
+<div class="glowing-dot absolute top-[10%] left-[20%]"></div>
+<div class="glowing-dot absolute top-[20%] left-[80%]"></div>
+<div class="glowing-dot absolute top-[50%] left-[50%]"></div>
+<div class="glowing-dot absolute top-[80%] left-[10%]"></div>
+<div class="glowing-dot absolute top-[90%] left-[90%]"></div>
+<div class="glowing-dot absolute top-[30%] left-[5%]"></div>
+<div class="glowing-dot absolute top-[60%] left-[95%]"></div>
+<div class="glowing-dot absolute top-[5%] left-[60%]"></div>
+</div>
+<div class="relative z-10 layout-container flex h-full grow flex-col">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#4A3C21] px-10 py-3">
+<div class="flex items-center gap-4 text-white">
+<img src="assets/images/homie-logo.png" alt="Homie Logo" class="h-10 w-10"/>
+<h1 class="text-white text-2xl font-bold leading-tight tracking-[-0.015em]">Homie</h1>
+</div>
+</header>
+<main class="flex flex-1 items-center justify-center py-16 px-4">
+<div class="w-full max-w-md space-y-8">
+<div class="text-center">
+<h2 class="text-3xl font-bold text-white">Complete your profile</h2>
+<p class="mt-2 text-gray-400">Tell us about yourself to get better matches.</p>
+</div>
+<form id="signup-form" class="space-y-6" method="POST">
+
+<!-- Basic Profile Info -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div>
+<label class="sr-only" for="username">Username</label>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-base text-white placeholder:text-gray-500 focus:outline-none focus:ring-0 transition-all duration-300" id="username" name="username" placeholder="Username" required="" type="text"/>
+</div>
+<div>
+<label class="sr-only" for="displayName">Display Name</label>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-base text-white placeholder:text-gray-500 focus:outline-none focus:ring-0 transition-all duration-300" id="displayName" name="displayName" placeholder="Display Name" required="" type="text"/>
+</div>
+</div>
+
+<div>
+<label class="sr-only" for="phoneNumber">Phone Number</label>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-base text-white placeholder:text-gray-500 focus:outline-none focus:ring-0 transition-all duration-300" id="phoneNumber" name="phoneNumber" placeholder="Phone Number (optional)" type="tel"/>
+</div>
+
+<!-- School & Location -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div>
+<label class="sr-only" for="school">School</label>
+<select class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-base text-white placeholder:text-gray-500 focus:outline-none focus:ring-0 transition-all duration-300" id="school" name="school" required>
+<option value="">Select School</option>
+<option value="USC">USC</option>
+<option value="UCLA">UCLA</option>
+</select>
+</div>
+<div>
+<label class="sr-only" for="locationDetails">Location Details</label>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-base text-white placeholder:text-gray-500 focus:outline-none focus:ring-0 transition-all duration-300" id="locationDetails" name="locationDetails" placeholder="Dorm, Area (optional)" type="text"/>
+</div>
+</div>
+
+<!-- Preferences -->
+<div>
+<label class="sr-only" for="priceRange">Price Range</label>
+<select class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-base text-white placeholder:text-gray-500 focus:outline-none focus:ring-0 transition-all duration-300" id="priceRange" name="priceRange" required>
+<option value="">Select Price Range</option>
+<option value="$">$ - Budget friendly ($0-15)</option>
+<option value="$$">$$ - Moderate ($15-30)</option>
+<option value="$$$">$$$ - Higher end ($30-50)</option>
+<option value="$$$$">$$$$ - Premium ($50+)</option>
+</select>
+</div>
+
+<!-- Meeting Preferences -->
+<div>
+<label class="block text-sm font-medium text-gray-300 mb-2">Meeting Preferences</label>
+<div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+<label class="flex items-center space-x-2 text-sm text-gray-300">
+<input type="checkbox" name="meetingPreference" value="coffee" class="rounded border-[#4A3C21] bg-[#231C10] text-[#FDAA25] focus:ring-[#FDAA25]">
+<span>Coffee</span>
+</label>
+<label class="flex items-center space-x-2 text-sm text-gray-300">
+<input type="checkbox" name="meetingPreference" value="lunch" class="rounded border-[#4A3C21] bg-[#231C10] text-[#FDAA25] focus:ring-[#FDAA25]">
+<span>Lunch</span>
+</label>
+<label class="flex items-center space-x-2 text-sm text-gray-300">
+<input type="checkbox" name="meetingPreference" value="dinner" class="rounded border-[#4A3C21] bg-[#231C10] text-[#FDAA25] focus:ring-[#FDAA25]">
+<span>Dinner</span>
+</label>
+<label class="flex items-center space-x-2 text-sm text-gray-300">
+<input type="checkbox" name="meetingPreference" value="study" class="rounded border-[#4A3C21] bg-[#231C10] text-[#FDAA25] focus:ring-[#FDAA25]">
+<span>Study</span>
+</label>
+<label class="flex items-center space-x-2 text-sm text-gray-300">
+<input type="checkbox" name="meetingPreference" value="casual" class="rounded border-[#4A3C21] bg-[#231C10] text-[#FDAA25] focus:ring-[#FDAA25]">
+<span>Casual</span>
+</label>
+<label class="flex items-center space-x-2 text-sm text-gray-300">
+<input type="checkbox" name="meetingPreference" value="activity" class="rounded border-[#4A3C21] bg-[#231C10] text-[#FDAA25] focus:ring-[#FDAA25]">
+<span>Activity</span>
+</label>
+</div>
+</div>
+
+<!-- Interests -->
+<div>
+<label class="sr-only" for="interests">Interests</label>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-base text-white placeholder:text-gray-500 focus:outline-none focus:ring-0 transition-all duration-300" id="interests" name="interests" placeholder="Interests (comma separated: music, sports, art...)" type="text"/>
+</div>
+
+<!-- Cuisine Preferences -->
+<div>
+<label class="sr-only" for="cuisinePreferences">Cuisine Preferences</label>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-base text-white placeholder:text-gray-500 focus:outline-none focus:ring-0 transition-all duration-300" id="cuisinePreferences" name="cuisinePreferences" placeholder="Cuisine preferences (comma separated: italian, korean, mexican...)" type="text"/>
+</div>
+<div>
+<button id="submit-btn" class="primary-cta flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-full h-12 px-5 bg-[#FDAA25] text-[#1C160C] text-base font-bold leading-normal tracking-wide" type="submit">
+<span class="truncate">Complete Profile</span>
+</form>
+</div>
+</main>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const submitBtn = document.getElementById('submit-btn');
+
+// Get invite code and email from localStorage (set by login page)
+const inviteCode = localStorage.getItem('verifiedInviteCode');
+const newUserEmail = localStorage.getItem('newUserEmail');
+
+// Only redirect if we're not coming from OAuth callback and no invite code
+if (!inviteCode && !window.location.search.includes('oauth=callback')) {
+  alert('No verified invite code found. Please start from the login page.');
+  window.location.href = '/web/login.html';
+}
+
+// Handle profile completion
+document.getElementById('signup-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  // Collect meeting preferences
+  const meetingPreferences = Array.from(document.querySelectorAll('input[name="meetingPreference"]:checked'))
+    .map(cb => cb.value);
+  
+  // Parse interests and cuisine preferences
+  const interests = document.getElementById('interests').value
+    .split(',')
+    .map(item => item.trim())
+    .filter(item => item.length > 0);
+    
+  const cuisinePreferences = document.getElementById('cuisinePreferences').value
+    .split(',')
+    .map(item => item.trim())
+    .filter(item => item.length > 0);
+  
+  const username = document.getElementById('username').value.trim();
+  
+  const profileData = {
+    username,
+    code: inviteCode,
+    displayName: document.getElementById('displayName').value.trim(),
+    phoneNumber: document.getElementById('phoneNumber').value.trim() || null,
+    school: document.getElementById('school').value,
+    locationDetails: document.getElementById('locationDetails').value.trim() || null,
+    priceRange: document.getElementById('priceRange').value,
+    meetingPreference: meetingPreferences,
+    interests: interests,
+    cuisinePreferences: cuisinePreferences
+  };
+  
+  submitBtn.textContent = 'Completing Profile...';
+  submitBtn.disabled = true;
+  
+  try {
+    const res = await fetch('/api/auth/complete-profile', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        ...profileData,
+        email: newUserEmail // Include email for new users
+      })
+    });
+    
+    const data = await res.json();
+    
+    if (res.ok) {
+      localStorage.removeItem('verifiedInviteCode');
+      localStorage.removeItem('newUserEmail');
+      alert('Profile completed successfully! Welcome to Homie!');
+      window.location.href = '/web/';
+    } else {
+      throw new Error(data.error || 'Profile completion failed');
+    }
+  } catch (error) {
+    console.error('Profile completion error:', error);
+    alert(error.message || 'Profile completion failed - please try again');
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Complete Profile';
+  }
+});
+
+</script>
+
+</body></html>
