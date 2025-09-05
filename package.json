@@ -5,7 +5,7 @@
   "main": "api/server.js",
   "type": "module",
   "scripts": {
-    "dev": "tsx watch api/server.ts",
+    "dev": "node server.js",
     "build": "prisma generate && tsc",
     "start": "node api/server.js",
     "db:generate": "prisma generate",

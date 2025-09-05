@@ -72,7 +72,7 @@ CREATE TABLE user_connections (
 -- Meetup events table
 CREATE TABLE meetups (
     id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
-    created_by TEXT NOT NULL,
+    created_by UUID NOT NULL,
     title TEXT NOT NULL,
     description TEXT,
     location TEXT NOT NULL,
@@ -131,12 +131,25 @@ ALTER TABLE user_connections ENABLE ROW LEVEL SECURITY;
 ALTER TABLE meetups ENABLE ROW LEVEL SECURITY;
 ALTER TABLE meetup_participants ENABLE ROW LEVEL SECURITY;
 
--- Users can read their own profile and profiles of connected users
+-- Users can read and update their own profile
 CREATE POLICY "Users can view own profile" ON users
     FOR SELECT USING (auth.uid()::text = id);
 
 CREATE POLICY "Users can update own profile" ON users
     FOR UPDATE USING (auth.uid()::text = id);
+
+CREATE POLICY "Users can insert own profile" ON users
+    FOR INSERT WITH CHECK (auth.uid()::text = id);
+
+CREATE POLICY "Users can view other completed profiles" ON users
+    FOR SELECT USING (
+        profile_completed = true AND
+        id != auth.uid()::text
+    );
+
+-- Grant necessary permissions
+GRANT SELECT, INSERT, UPDATE ON users TO authenticated;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO authenticated;
 
 -- Meetups are visible to users of the same school
 CREATE POLICY "Users can view meetups from same school" ON meetups

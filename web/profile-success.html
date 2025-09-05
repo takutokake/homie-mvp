@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Inter%3Awght%40400%3B500%3B700%3B900&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900" onload="this.rel='stylesheet'" rel="stylesheet"/>
+    <title>Homie - Profile Complete</title>
+    <link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style type="text/tailwindcss">
+        :root {
+            --orange-glow: 0 0 10px rgba(253, 170, 37, 0.3);
+            --orange-glow-strong: 0 0 20px rgba(253, 170, 37, 0.5);
+        }
+        @keyframes glow-shift {
+            0% {
+                box-shadow: none;
+                border-color: #4A3C21;
+            }
+            100% {
+                box-shadow: var(--orange-glow);
+                border-color: #FDAA25;
+            }
+        }
+        .form-input:focus {
+            caret-color: #FDAA25;
+            animation: glow-shift 0.5s forwards;
+        }
+        .primary-cta {
+            box-shadow: var(--orange-glow);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+        .primary-cta:hover {
+            transform: scale(1.05);
+            box-shadow: var(--orange-glow-strong);
+        }
+        .primary-cta:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .bg-grid {
+            background-size: 50px 50px;
+            background-image: 
+                linear-gradient(to right, rgba(74, 60, 33, 0.1) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(74, 60, 33, 0.1) 1px, transparent 1px);
+        }
+        @keyframes pulse-dots {
+            0%, 100% {
+                opacity: 0.2;
+                transform: scale(0.8);
+            }
+            50% {
+                opacity: 0.6;
+                transform: scale(1.2);
+            }
+        }
+        .glowing-dot {
+            animation: pulse-dots 2s infinite;
+        }
+        .glowing-dot:nth-child(2) { animation-delay: 0.4s; }
+        .glowing-dot:nth-child(3) { animation-delay: 0.8s; }
+        .glowing-dot:nth-child(4) { animation-delay: 1.2s; }
+        .glowing-dot:nth-child(5) { animation-delay: 1.6s; }
+    </style>
+</head>
+<body class="bg-[#1C160C] text-white min-h-screen">
+    <div class="min-h-screen flex flex-col bg-grid relative overflow-hidden">
+        <!-- Background Elements -->
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <!-- Glowing Dots -->
+            <div class="absolute top-1/4 left-1/4 w-2 h-2 rounded-full bg-[#FDAA25] glowing-dot"></div>
+            <div class="absolute top-3/4 left-1/3 w-2 h-2 rounded-full bg-[#FDAA25] glowing-dot"></div>
+            <div class="absolute top-1/2 right-1/4 w-2 h-2 rounded-full bg-[#FDAA25] glowing-dot"></div>
+            <div class="absolute bottom-1/4 right-1/3 w-2 h-2 rounded-full bg-[#FDAA25] glowing-dot"></div>
+            <div class="absolute top-1/3 right-1/2 w-2 h-2 rounded-full bg-[#FDAA25] glowing-dot"></div>
+        </div>
+
+        <!-- Header -->
+        <header class="relative z-10 border-b border-[#4A3C21] bg-[#1C160C]/80 backdrop-blur-sm p-4">
+            <div class="flex items-center gap-3">
+                <img src="assets/images/homie-logo.png" alt="Homie Logo" class="h-10 w-10"/>
+                <h1 class="text-2xl font-bold text-white">Homie</h1>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex items-center justify-center p-4 md:p-8">
+            <div class="w-full max-w-2xl space-y-8 text-center">
+                <div class="bg-[#231C10]/80 backdrop-blur-sm rounded-xl border border-[#4A3C21] p-8 md:p-12">
+                    <div class="container mx-auto px-4 py-8 max-w-3xl">
+                        <div class="text-center mb-12">
+                            <h1 class="text-4xl font-bold text-[#FDAA25] mb-4">Profile Complete!</h1>
+                            <p class="text-gray-300 text-lg">Your profile has been successfully created.</p>
+                        </div>
+
+                        <div class="bg-[#1C160C] border border-[#FDAA25] rounded-lg p-8 mb-8 shadow-lg relative overflow-hidden">
+                            <div class="relative z-10">
+                                <h2 class="text-2xl font-bold text-[#FDAA25] mb-4">Here's your invite code</h2>
+                                <p class="text-gray-300 mb-6">Share this code with friends to invite them to Homie!</p>
+                                
+                                <div class="flex items-center justify-center space-x-4 mb-6">
+                                    <code id="invite-code" class="bg-[#2D251A] text-[#FDAA25] px-6 py-3 rounded-lg text-xl font-mono"></code>
+                                    <button id="copy-btn" class="bg-[#FDAA25] text-[#1C160C] px-4 py-2 rounded-lg hover:bg-[#FFC225] transition-colors">
+                                        Copy
+                                    </button>
+                                </div>
+
+                                <div class="text-center">
+                                    <a href="dashboard.html" class="inline-block bg-[#FDAA25] text-[#1C160C] px-6 py-3 rounded-lg hover:bg-[#FFC225] transition-colors font-semibold">
+                                        Go to Dashboard
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Initialize Supabase directly with credentials
+        const supabase = window.supabase.createClient(
+            'https://cfmegjvcnsbuyiwvmzft.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmbWVnanZjbnNidXlpd3ZtemZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY4NzgzNDUsImV4cCI6MjA3MjQ1NDM0NX0.8d2PW5KY1vP2AsYHWUxmHYZydvl5hToanYX8YQV8QgM'
+        );
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('=== PROFILE SUCCESS PAGE LOADED ===');
+            displayInviteCode();
+            // DO NOT redirect automatically - let users stay on success page
+        });
+
+        function displayInviteCode() {
+            // Get invite code from localStorage or generate a display code
+            let inviteCode = localStorage.getItem('homie_generated_invite') || localStorage.getItem('homie_invite') || 'HOMIE1';
+            
+            console.log('Displaying invite code:', inviteCode);
+            document.getElementById('invite-code').textContent = inviteCode;
+            
+            document.getElementById('copy-btn').addEventListener('click', () => {
+                navigator.clipboard.writeText(inviteCode);
+                document.getElementById('copy-btn').textContent = 'Copied!';
+                setTimeout(() => {
+                    document.getElementById('copy-btn').textContent = 'Copy';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

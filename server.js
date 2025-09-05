@@ -18,7 +18,7 @@ app.use(cors());
 app.use(express.static('web'));
 
 // Serve Supabase config
-app.get('/api/config', (req, res) => {
+app.get('/api/auth/config', (req, res) => {
   const config = {
     supabaseUrl: process.env.SUPABASE_URL,
     supabaseAnonKey: process.env.SUPABASE_ANON_KEY
@@ -31,7 +31,13 @@ app.get('/api/config', (req, res) => {
   res.json(config);
 });
 
-// Serve static files
+// Serve HTML files
+app.get('/*.html', (req, res) => {
+  const filePath = join(__dirname, 'web', req.path);
+  res.sendFile(filePath);
+});
+
+// Serve index for other routes
 app.get('*', (req, res) => {
   res.sendFile(join(__dirname, 'web', 'index.html'));
 });

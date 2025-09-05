@@ -438,4 +438,69 @@ async function handleOAuthCallback() {
         }
 
         try {
-          console.log('Sending OAuth callback to backend:', {
+          console.log('Sending OAuth callback to backend:', { user, inviteCode });
+          const response = await fetch('/api/auth/oauth-callback', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              user,
+              code: inviteCode
+            })
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+          console.log('OAuth callback response:', data);
+          
+          // Clear OAuth state and invite code from session storage
+          sessionStorage.removeItem('oauthState');
+          sessionStorage.removeItem('pendingInviteCode');
+          
+          // Create initial profile for OAuth user
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .insert([
+              {
+                user_id: user.id,
+                email: user.email,
+                invite_code: inviteCode,
+                profile_completed: false
+              }
+            ]);
+
+          if (profileError) {
+            console.error('Profile creation error:', profileError);
+            throw new Error('Failed to create user profile');
+          }
+
+          // Redirect to profile completion
+          window.location.href = '/complete-profile.html';
+        } catch (error) {
+          console.error('Error in OAuth callback:', error);
+          alert('Failed to complete sign in: ' + error.message);
+        }
+      } else {
+        console.error('No session found after OAuth callback');
+        alert('Failed to authenticate with Google. Please try again.');
+      }
+    } catch (error) {
+      console.error('OAuth callback error:', error);
+      alert(error.message || 'Failed to complete Google sign-in');
+      window.location.href = '/login.html';
+    }
+  }
+}
+
+// Check for OAuth callback on page load
+if (window.location.search.includes('oauth=callback')) {
+  setTimeout(handleOAuthCallback, 1000);
+}
+</script>
+
+</body></html>

@@ -1,12 +1,51 @@
 <!DOCTYPE html>
-<html><head>
-<meta charset="utf-8"/>
-<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
-<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Inter%3Awght%40400%3B500%3B700%3B900&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900" onload="this.rel='stylesheet'" rel="stylesheet"/>
-<title>Homie - Complete Profile</title>
-<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<style type="text/tailwindcss">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Your Profile - Homie</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <style>
+        :root {
+            --homie-orange: #FDAA25;
+            --homie-violet: #CE7AFF;
+        }
+        .bg-grid {
+            background-size: 40px 40px;
+            background-image: 
+                linear-gradient(to right, rgba(255,255,255,.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255,255,255,.05) 1px, transparent 1px);
+        }
+        .glowing-dot {
+            width: 4px;
+            height: 4px;
+            background: var(--homie-orange);
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(253, 170, 37, 0.6);
+            animation: glow 4s infinite;
+        }
+        @keyframes glow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+        <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'homie-orange': '#FDAA25',
+                        'homie-violet': '#CE7AFF'
+                    }
+                }
+            }
+        }
+    </script>
+    <link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Inter%3Awght%40400%3B500%3B700%3B900&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900" onload="this.rel='stylesheet'" rel="stylesheet"/>
+    <title>Homie - Complete Profile</title>
+    <link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style type="text/tailwindcss">
         :root {
             --homie-orange: #FDAA25;
             --homie-violet: #CE7AFF;
@@ -77,258 +116,387 @@
     </style>
 </head>
 <body class="bg-[#1C160C]">
-<div class="relative flex size-full min-h-screen flex-col bg-[#1C160C] dark group/design-root overflow-hidden" style='font-family: Inter, "Noto Sans", sans-serif;'>
-<div class="absolute inset-0 z-0 bg-grid opacity-50"></div>
-<div class="absolute inset-0 z-0">
-<div class="glowing-dot absolute top-[10%] left-[20%]"></div>
-<div class="glowing-dot absolute top-[20%] left-[80%]"></div>
-<div class="glowing-dot absolute top-[50%] left-[50%]"></div>
-<div class="glowing-dot absolute top-[80%] left-[10%]"></div>
-<div class="glowing-dot absolute top-[90%] left-[90%]"></div>
-<div class="glowing-dot absolute top-[30%] left-[5%]"></div>
-<div class="glowing-dot absolute top-[60%] left-[95%]"></div>
-<div class="glowing-dot absolute top-[5%] left-[60%]"></div>
-</div>
-<div class="relative z-10 layout-container flex h-full grow flex-col">
-<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#4A3C21] px-10 py-3">
-<div class="flex items-center gap-4 text-white">
-<img src="assets/images/homie-logo.png" alt="Homie Logo" class="h-10 w-10"/>
-<h1 class="text-white text-2xl font-bold leading-tight tracking-[-0.015em]">Homie</h1>
-</div>
-</header>
-<main class="flex flex-1 items-center justify-center py-16 px-4">
-<div class="w-full max-w-2xl space-y-8">
-<div class="text-center">
-<h2 class="text-3xl font-bold text-white">Complete your profile</h2>
-<p class="mt-2 text-gray-400">Tell us about yourself to find the perfect homies.</p>
-</div>
+    <div class="relative flex size-full min-h-screen flex-col bg-[#1C160C] dark group/design-root overflow-hidden" style='font-family: Inter, "Noto Sans", sans-serif;'>
+        <div class="absolute inset-0 z-0 bg-grid opacity-50"></div>
+        <div class="absolute inset-0 z-0">
+            <div class="glowing-dot absolute top-[10%] left-[20%]"></div>
+            <div class="glowing-dot absolute top-[20%] left-[80%]"></div>
+            <div class="glowing-dot absolute top-[50%] left-[50%]"></div>
+            <div class="glowing-dot absolute top-[80%] left-[10%]"></div>
+            <div class="glowing-dot absolute top-[90%] left-[90%]"></div>
+            <div class="glowing-dot absolute top-[30%] left-[5%]"></div>
+            <div class="glowing-dot absolute top-[60%] left-[95%]"></div>
+            <div class="glowing-dot absolute top-[5%] left-[60%]"></div>
+        </div>
+        <div class="relative z-10 layout-container flex h-full grow flex-col">
+            <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#4A3C21] px-10 py-3">
+                <div class="flex items-center gap-4 text-white">
+                    <img src="assets/images/homie-logo.png" alt="Homie Logo" class="h-10 w-10"/>
+                    <h1 class="text-white text-2xl font-bold leading-tight tracking-[-0.015em]">Homie</h1>
+                </div>
+            </header>
+            <main class="flex flex-1 items-center justify-center py-16 px-4">
+                <div class="w-full max-w-2xl space-y-8">
+                    <div class="text-center">
+                        <h2 class="text-3xl font-bold text-white">Complete Your Profile</h2>
+                        <p class="mt-2 text-gray-400">Tell us about yourself to find your perfect homies.</p>
+                    </div>
+                    
+                    <form id="profile-form" class="space-y-8 bg-[#231C10]/80 backdrop-blur-sm rounded-xl border border-[#4A3C21] p-8">
+                    <!-- Personal Information Section -->
+                    <div class="space-y-6">
+                        <h3 class="text-lg font-semibold text-white border-b border-[#4A3C21] pb-2">Personal Information</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="display_name" class="block text-sm font-medium text-gray-300 mb-2">Display Name *</label>
+                                <input type="text" id="display_name" name="display_name" required
+                                       placeholder="Name shown to other users"
+                                       class="form-input w-full rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-white placeholder:text-gray-500 focus:ring-[#FDAA25] transition-all duration-300">
+                            </div>
+                            
+                            <div>
+                                <label for="phone_number" class="block text-sm font-medium text-gray-300 mb-2">Phone Number</label>
+                                <input type="tel" id="phone_number" name="phone_number"
+                                       placeholder="(555) 123-4567"
+                                       class="form-input w-full rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-white placeholder:text-gray-500 focus:ring-[#FDAA25] transition-all duration-300">
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center space-x-3">
+                            <input type="checkbox" id="sms_consent" name="sms_consent"
+                                   class="rounded border-[#4A3C21] bg-[#231C10] text-[#FDAA25] focus:ring-[#FDAA25]">
+                            <label for="sms_consent" class="text-sm text-gray-300">I consent to receive SMS notifications about meetups</label>
+                        </div>
+                    </div>
 
-<form id="profile-form" class="space-y-6">
-<!-- Basic Info -->
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-<div>
-<label class="sr-only" for="username">Username</label>
-<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-base text-white placeholder:text-gray-500 focus:outline-none focus:ring-0 transition-all duration-300" 
-  id="username" name="username" placeholder="Username" required type="text"/>
-</div>
-<div>
-<label class="sr-only" for="displayName">Display Name</label>
-<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-base text-white placeholder:text-gray-500 focus:outline-none focus:ring-0 transition-all duration-300" 
-  id="displayName" name="displayName" placeholder="Display Name" required type="text"/>
-</div>
-</div>
+                    <!-- School Information Section -->
+                    <div class="space-y-6">
+                        <h3 class="text-lg font-semibold text-white border-b border-[#4A3C21] pb-2">School Information</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="school" class="block text-sm font-medium text-gray-300 mb-2">School *</label>
+                                <select id="school" name="school" required
+                                        class="form-input w-full rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-white focus:ring-[#FDAA25] transition-all duration-300">
+                                    <option value="">Select your school</option>
+                                    <option value="USC">USC</option>
+                                    <option value="UCLA">UCLA</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label for="school_area" class="block text-sm font-medium text-gray-300 mb-2">School Area</label>
+                                <input type="text" id="school_area" name="school_area"
+                                       placeholder="Dorm, Area, etc."
+                                       class="form-input w-full rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-white placeholder:text-gray-500 focus:ring-[#FDAA25] transition-all duration-300">
+                            </div>
+                        </div>
+                    </div>
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-<div>
-<label class="sr-only" for="phoneNumber">Phone Number</label>
-<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-base text-white placeholder:text-gray-500 focus:outline-none focus:ring-0 transition-all duration-300" 
-  id="phoneNumber" name="phoneNumber" placeholder="Phone Number (optional)" type="tel"/>
-</div>
-<div>
-<label class="sr-only" for="school">School</label>
-<select class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-base text-white placeholder:text-gray-500 focus:outline-none focus:ring-0 transition-all duration-300" 
-  id="school" name="school" required>
-<option value="">Select School</option>
-<option value="USC">USC</option>
-<option value="UCLA">UCLA</option>
-</select>
-</div>
-</div>
+                    <!-- Preferences Section -->
+                    <div class="space-y-6">
+                        <h3 class="text-lg font-semibold text-white border-b border-[#4A3C21] pb-2">Your Preferences</h3>
+                        
+                        <div>
+                            <label for="price_range" class="block text-sm font-medium text-gray-300 mb-2">Budget Range *</label>
+                            <select id="price_range" name="price_range" required
+                                    class="form-input w-full rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-white focus:ring-[#FDAA25] transition-all duration-300">
+                                <option value="">Select your budget range</option>
+                                <option value="$">$ - Budget friendly ($0-15)</option>
+                                <option value="$$">$$ - Moderate ($15-30)</option>
+                                <option value="$$$">$$$ - Higher end ($30-50)</option>
+                                <option value="$$$$">$$$$ - Premium ($50+)</option>
+                            </select>
+                        </div>
 
-<div>
-<label class="sr-only" for="locationDetails">Location Details</label>
-<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-base text-white placeholder:text-gray-500 focus:outline-none focus:ring-0 transition-all duration-300" 
-  id="locationDetails" name="locationDetails" placeholder="Dorm, Area (optional)" type="text"/>
-</div>
+                        <!-- Meeting Preferences -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-3">Meeting Preferences *</label>
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                <label class="flex items-center space-x-3 p-3 rounded-lg border border-[#4A3C21] hover:border-[#FDAA25] transition-colors cursor-pointer">
+                                    <input type="checkbox" name="meeting_preference" value="coffee" 
+                                           class="rounded border-[#4A3C21] bg-[#231C10] text-[#FDAA25] focus:ring-[#FDAA25]">
+                                    <span class="text-sm text-gray-300">☕ Coffee</span>
+                                </label>
+                                <label class="flex items-center space-x-3 p-3 rounded-lg border border-[#4A3C21] hover:border-[#FDAA25] transition-colors cursor-pointer">
+                                    <input type="checkbox" name="meeting_preference" value="food"
+                                           class="rounded border-[#4A3C21] bg-[#231C10] text-[#FDAA25] focus:ring-[#FDAA25]">
+                                    <span class="text-sm text-gray-300">🍽️ Food</span>
+                                </label>
+                                <label class="flex items-center space-x-3 p-3 rounded-lg border border-[#4A3C21] hover:border-[#FDAA25] transition-colors cursor-pointer">
+                                    <input type="checkbox" name="meeting_preference" value="study"
+                                           class="rounded border-[#4A3C21] bg-[#231C10] text-[#FDAA25] focus:ring-[#FDAA25]">
+                                    <span class="text-sm text-gray-300">📚 Study</span>
+                                </label>
+                                <label class="flex items-center space-x-3 p-3 rounded-lg border border-[#4A3C21] hover:border-[#FDAA25] transition-colors cursor-pointer">
+                                    <input type="checkbox" name="meeting_preference" value="activity"
+                                           class="rounded border-[#4A3C21] bg-[#231C10] text-[#FDAA25] focus:ring-[#FDAA25]">
+                                    <span class="text-sm text-gray-300">🎯 Activity</span>
+                                </label>
+                                <label class="flex items-center space-x-3 p-3 rounded-lg border border-[#4A3C21] hover:border-[#FDAA25] transition-colors cursor-pointer">
+                                    <input type="checkbox" name="meeting_preference" value="social"
+                                           class="rounded border-[#4A3C21] bg-[#231C10] text-[#FDAA25] focus:ring-[#FDAA25]">
+                                    <span class="text-sm text-gray-300">🎉 Social</span>
+                                </label>
+                                <label class="flex items-center space-x-3 p-3 rounded-lg border border-[#4A3C21] hover:border-[#FDAA25] transition-colors cursor-pointer">
+                                    <input type="checkbox" name="meeting_preference" value="outdoor"
+                                           class="rounded border-[#4A3C21] bg-[#231C10] text-[#FDAA25] focus:ring-[#FDAA25]">
+                                    <span class="text-sm text-gray-300">🌳 Outdoor</span>
+                                </label>
+                            </div>
+                        </div>
 
-<!-- Preferences -->
-<div>
-<label class="sr-only" for="priceRange">Price Range</label>
-<select class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-base text-white placeholder:text-gray-500 focus:outline-none focus:ring-0 transition-all duration-300" 
-  id="priceRange" name="priceRange" required>
-<option value="">Select Price Range</option>
-<option value="$">$ - Budget friendly ($0-15)</option>
-<option value="$$">$$ - Moderate ($15-30)</option>
-<option value="$$$">$$$ - Higher end ($30-50)</option>
-<option value="$$$$">$$$$ - Premium ($50+)</option>
-</select>
-</div>
+                        <!-- Interests -->
+                        <div>
+                            <label for="interests" class="block text-sm font-medium text-gray-300 mb-2">Interests *</label>
+                            <input class="form-input w-full rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-white placeholder:text-gray-500 focus:ring-[#FDAA25] transition-all duration-300" 
+                                   id="interests" name="interests" 
+                                   placeholder="e.g., music, sports, art, gaming, cooking..."
+                                   required
+                                   type="text"/>
+                        </div>
 
-<!-- Meeting Preferences -->
-<div>
-<label class="block text-sm font-medium text-gray-300 mb-2">Meeting Preferences</label>
-<div class="grid grid-cols-2 md:grid-cols-3 gap-2">
-<label class="flex items-center space-x-2 text-sm text-gray-300">
-<input type="checkbox" name="meetingPreference" value="coffee" class="rounded border-[#4A3C21] bg-[#231C10] text-[#FDAA25] focus:ring-[#FDAA25]">
-<span>Coffee</span>
-</label>
-<label class="flex items-center space-x-2 text-sm text-gray-300">
-<input type="checkbox" name="meetingPreference" value="lunch" class="rounded border-[#4A3C21] bg-[#231C10] text-[#FDAA25] focus:ring-[#FDAA25]">
-<span>Lunch</span>
-</label>
-<label class="flex items-center space-x-2 text-sm text-gray-300">
-<input type="checkbox" name="meetingPreference" value="dinner" class="rounded border-[#4A3C21] bg-[#231C10] text-[#FDAA25] focus:ring-[#FDAA25]">
-<span>Dinner</span>
-</label>
-<label class="flex items-center space-x-2 text-sm text-gray-300">
-<input type="checkbox" name="meetingPreference" value="study" class="rounded border-[#4A3C21] bg-[#231C10] text-[#FDAA25] focus:ring-[#FDAA25]">
-<span>Study</span>
-</label>
-<label class="flex items-center space-x-2 text-sm text-gray-300">
-<input type="checkbox" name="meetingPreference" value="casual" class="rounded border-[#4A3C21] bg-[#231C10] text-[#FDAA25] focus:ring-[#FDAA25]">
-<span>Casual</span>
-</label>
-<label class="flex items-center space-x-2 text-sm text-gray-300">
-<input type="checkbox" name="meetingPreference" value="activity" class="rounded border-[#4A3C21] bg-[#231C10] text-[#FDAA25] focus:ring-[#FDAA25]">
-<span>Activity</span>
-</label>
-</div>
-</div>
+                        <!-- Hangout Types -->
+                        <div>
+                            <label for="hangoutTypes" class="block text-sm font-medium text-gray-300 mb-2">Preferred Hangout Types *</label>
+                            <input class="form-input w-full rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-white placeholder:text-gray-500 focus:ring-[#FDAA25] transition-all duration-300" 
+                                   id="hangoutTypes" name="hangoutTypes" 
+                                   placeholder="e.g., cafe, restaurant, park, library, gym..."
+                                   required
+                                   type="text"/>
+                        </div>
+                    </div>
 
-<!-- Interests -->
-<div>
-<label class="sr-only" for="interests">Interests</label>
-<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-base text-white placeholder:text-gray-500 focus:outline-none focus:ring-0 transition-all duration-300" 
-  id="interests" name="interests" placeholder="Interests (comma separated: music, sports, art...)" type="text"/>
-</div>
+                    <!-- Availability Section -->
+                    <div class="space-y-6">
+                        <h3 class="text-lg font-semibold text-white border-b border-[#4A3C21] pb-2">When You're Available</h3>
+                        
+                        <!-- Preferred Time of Day -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-3">Preferred Time of Day *</label>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                <label class="flex items-center space-x-3 p-3 rounded-lg border border-[#4A3C21] hover:border-[#FDAA25] transition-colors cursor-pointer">
+                                    <input type="checkbox" name="preferred_time_of_day" value="morning" 
+                                           class="rounded border-[#4A3C21] bg-[#231C10] text-[#FDAA25] focus:ring-[#FDAA25]">
+                                    <span class="text-sm text-gray-300">🌅 Morning</span>
+                                </label>
+                                <label class="flex items-center space-x-3 p-3 rounded-lg border border-[#4A3C21] hover:border-[#FDAA25] transition-colors cursor-pointer">
+                                    <input type="checkbox" name="preferred_time_of_day" value="afternoon"
+                                           class="rounded border-[#4A3C21] bg-[#231C10] text-[#FDAA25] focus:ring-[#FDAA25]">
+                                    <span class="text-sm text-gray-300">☀️ Afternoon</span>
+                                </label>
+                                <label class="flex items-center space-x-3 p-3 rounded-lg border border-[#4A3C21] hover:border-[#FDAA25] transition-colors cursor-pointer">
+                                    <input type="checkbox" name="preferred_time_of_day" value="evening"
+                                           class="rounded border-[#4A3C21] bg-[#231C10] text-[#FDAA25] focus:ring-[#FDAA25]">
+                                    <span class="text-sm text-gray-300">🌆 Evening</span>
+                                </label>
+                                <label class="flex items-center space-x-3 p-3 rounded-lg border border-[#4A3C21] hover:border-[#FDAA25] transition-colors cursor-pointer">
+                                    <input type="checkbox" name="preferred_time_of_day" value="night"
+                                           class="rounded border-[#4A3C21] bg-[#231C10] text-[#FDAA25] focus:ring-[#FDAA25]">
+                                    <span class="text-sm text-gray-300">🌙 Night</span>
+                                </label>
+                            </div>
+                        </div>
 
-<!-- Cuisine Preferences -->
-<div>
-<label class="sr-only" for="cuisinePreferences">Cuisine Preferences</label>
-<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-[#4A3C21] bg-[#231C10] px-4 py-3 text-base text-white placeholder:text-gray-500 focus:outline-none focus:ring-0 transition-all duration-300" 
-  id="cuisinePreferences" name="cuisinePreferences" placeholder="Cuisine preferences (comma separated: italian, korean, mexican...)" type="text"/>
-</div>
+                        <!-- Preferred Days -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-3">Preferred Days *</label>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <label class="flex items-center space-x-3 p-3 rounded-lg border border-[#4A3C21] hover:border-[#FDAA25] transition-colors cursor-pointer">
+                                    <input type="checkbox" name="preferred_days" value="weekdays" 
+                                           class="rounded border-[#4A3C21] bg-[#231C10] text-[#FDAA25] focus:ring-[#FDAA25]">
+                                    <span class="text-sm text-gray-300">📅 Weekdays (Mon-Fri)</span>
+                                </label>
+                                <label class="flex items-center space-x-3 p-3 rounded-lg border border-[#4A3C21] hover:border-[#FDAA25] transition-colors cursor-pointer">
+                                    <input type="checkbox" name="preferred_days" value="weekends"
+                                           class="rounded border-[#4A3C21] bg-[#231C10] text-[#FDAA25] focus:ring-[#FDAA25]">
+                                    <span class="text-sm text-gray-300">🎉 Weekends (Sat-Sun)</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
 
-<div>
-<button id="submit-btn" class="primary-cta flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-full h-12 px-5 bg-[#FDAA25] text-[#1C160C] text-base font-bold leading-normal tracking-wide" type="submit">
-<span class="truncate">Complete Profile</span>
-</button>
-</div>
-</form>
-</div>
-</main>
+                    <!-- Submit Button -->
+                    <div class="pt-4">
+                        <button type="submit" id="submit-btn"
+                                class="primary-cta w-full rounded-lg bg-[#FDAA25] px-6 py-4 text-lg font-bold text-black hover:bg-[#fbc256] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#FDAA25] focus:ring-offset-2 focus:ring-offset-[#1C160C]">
+                            Complete Profile
+                        </button>
+                    </div>
+                </form>
+                </div>
+            </main>
 </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// Initialize Supabase
-let supabase;
+    // Initialize Supabase directly with credentials
+    const supabase = window.supabase.createClient(
+        'https://cfmegjvcnsbuyiwvmzft.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmbWVnanZjbnNidXlpd3ZtemZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY4NzgzNDUsImV4cCI6MjA3MjQ1NDM0NX0.8d2PW5KY1vP2AsYHWUxmHYZydvl5hToanYX8YQV8QgM'
+    );
 
-async function initSupabase() {
-  try {
-    const response = await fetch('/api/auth/config');
-    const config = await response.json();
-    supabase = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
-  } catch (error) {
-    console.error('Failed to initialize Supabase:', error);
-  }
-}
+    async function initSupabase() {
+        try {
+            console.log('=== PROFILE PAGE INITIALIZATION START ===');
+            console.log('Profile page: URL:', window.location.href);
+            console.log('Profile page: Checking session...');
+            
+            const { data: { session }, error } = await supabase.auth.getSession();
+            console.log('Profile page: Session check result:', { 
+                hasSession: !!session, 
+                sessionId: session?.user?.id,
+                sessionEmail: session?.user?.email,
+                error: error 
+            });
+            
+            if (error) {
+                console.error('Profile page: Session error:', error);
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            if (!session) {
+                console.log('Profile page: No session found, redirecting to login');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            console.log('Profile page: Valid session found for user:', session.user.id);
+            console.log('Profile page: Session expires at:', new Date(session.expires_at * 1000));
 
-initSupabase();
+            // Check if user exists in users table and if profile is completed
+            const { data: user, error: userError } = await supabase
+                .from('users')
+                .select('*')
+                .eq('id', session.user.id)
+                .single();
 
-// Check authentication state
-async function checkAuth() {
-  if (!supabase) {
-    setTimeout(checkAuth, 500);
-    return;
-  }
-  
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    alert('Please sign in first.');
-    window.location.href = '/login.html';
-    return;
-  }
-}
+            // If user has completed profile, redirect to success page
+            if (user && user.profile_completed && user.display_name) {
+                console.log('Profile already completed, redirecting to success page');
+                window.location.href = 'profile-success.html';
+                return;
+            }
 
-checkAuth();
+            if (userError || !user) {
+                console.log('User not found in database, creating profile...');
+                // Create user profile if it doesn't exist
+                try {
+                    await supabase.from('users').insert([{
+                        id: session.user.id,
+                        email: session.user.email,
+                        username: session.user.email.split('@')[0],
+                        display_name: '',
+                        phone_number: '',
+                        profile_completed: false,
+                        created_at: new Date().toISOString(),
+                        last_login: new Date().toISOString()
+                    }]);
+                    console.log('User profile created successfully');
+                } catch (insertError) {
+                    console.error('Failed to create user profile:', insertError);
+                    // Don't redirect, let user try to complete profile anyway
+                }
+            }
+        } catch (error) {
+            console.error('Profile page: Failed to initialize:', error);
+            console.log('Profile page: Staying on page despite initialization error');
+            // Don't redirect on initialization errors, let user stay on profile page
+        }
+        
+        console.log('=== PROFILE PAGE INITIALIZATION COMPLETE ===');
+    }
 
-// Handle profile completion
-document.getElementById('profile-form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  
-  if (!supabase) {
-    alert('Authentication system not ready. Please refresh and try again.');
-    return;
-  }
-  
-  // Collect meeting preferences
-  const meetingPreferences = Array.from(document.querySelectorAll('input[name="meetingPreference"]:checked'))
-    .map(cb => cb.value);
-  
-  // Parse interests and cuisine preferences
-  const interests = document.getElementById('interests').value
-    .split(',')
-    .map(item => item.trim())
-    .filter(item => item.length > 0);
-    
-  const cuisinePreferences = document.getElementById('cuisinePreferences').value
-    .split(',')
-    .map(item => item.trim())
-    .filter(item => item.length > 0);
-  
-  const username = document.getElementById('username').value.trim();
-  const verifiedCode = localStorage.getItem('verifiedInviteCode');
-  const signupEmail = localStorage.getItem('signupEmail');
-  
-  const profileData = {
-    username,
-    code: verifiedCode,
-    email: signupEmail,
-    displayName: document.getElementById('displayName').value.trim(),
-    phoneNumber: document.getElementById('phoneNumber').value.trim() || null,
-    school: document.getElementById('school').value,
-    locationDetails: document.getElementById('locationDetails').value.trim() || null,
-    priceRange: document.getElementById('priceRange').value,
-    meetingPreference: meetingPreferences,
-    interests: interests,
-    cuisinePreferences: cuisinePreferences
-  };
-  
-  const submitBtn = document.getElementById('submit-btn');
-  submitBtn.textContent = 'Completing Profile...';
-  submitBtn.disabled = true;
-  
-  try {
-    // Get current user
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      throw new Error('User not authenticated');
+    async function handleSubmit(event) {
+        event.preventDefault();
+        const submitButton = document.getElementById('submit-btn');
+        submitButton.disabled = true;
+        submitButton.textContent = 'Saving...';
+
+        try {
+            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+            if (sessionError || !session) throw new Error('No active session');
+
+            // Skip username validation - not needed
+
+            // Safe form value getters
+            const getFormValue = (id) => {
+                const element = document.getElementById(id);
+                return element ? element.value.trim() : '';
+            };
+
+            const getCheckedValues = (name) => {
+                return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map(cb => cb.value);
+            };
+
+            const formData = {
+                id: session.user.id,
+                email: session.user.email,
+                display_name: getFormValue('display_name'),
+                phone_number: getFormValue('phone_number'),
+                sms_consent: document.getElementById('sms_consent')?.checked || false,
+                school: getFormValue('school'),
+                location_details: getFormValue('school_area'),
+                price_range: getFormValue('price_range'),
+                meeting_preference: getCheckedValues('meeting_preference'),
+                interests: getFormValue('interests').split(',').map(i => i.trim()).filter(i => i),
+                cuisine_preferences: getFormValue('hangout_types').split(',').map(i => i.trim()).filter(i => i),
+                profile_completed: true,
+                updated_at: new Date().toISOString()
+            };
+
+            console.log('Submitting profile data:', formData);
+
+            const { error: updateError } = await supabase
+                .from('users')
+                .upsert(formData)
+                .select()
+                .single();
+
+            if (updateError) throw updateError;
+
+            // Generate invite code for new user
+            const inviteCode = 'HOMIE' + Math.random().toString(36).substring(2, 8).toUpperCase();
+            const { error: inviteError } = await supabase
+                .from('invites')
+                .insert([{
+                    code: inviteCode,
+                    created_by: session.user.id,
+                    max_uses: 5,
+                    school_restriction: formData.school,
+                    is_active: true
+                }]);
+
+            if (inviteError) throw inviteError;
+
+            // Store invite code and school for success page
+            localStorage.setItem('homie_invite', inviteCode);
+            localStorage.setItem('homie_school', formData.school);
+
+            // Redirect to success page
+            window.location.href = 'profile-success.html';
+
+        } catch (error) {
+            console.error('Error saving profile:', error);
+            alert(error.message || 'Failed to save profile');
+        } finally {
+            submitButton.disabled = false;
+            submitButton.textContent = 'Complete Profile';
+        }
     }
     
-    // Check if this is a new signup or OAuth completion
-    let endpoint = '/api/auth/complete-profile';
-    if (signupEmail) {
-      // This is from email signup, create full profile
-      endpoint = '/api/auth/signup';
+    // Check if we have user info from signup in localStorage
+    const storedUser = localStorage.getItem('homie_user');
+    if (storedUser) {
+        console.log('Found stored user from signup:', JSON.parse(storedUser));
     }
     
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(profileData)
-    });
-    
-    const data = await res.json();
-    
-    if (res.ok) {
-      // Clear stored data
-      localStorage.removeItem('verifiedInviteCode');
-      localStorage.removeItem('signupEmail');
-      
-      alert('Profile completed successfully! Welcome to Homie!');
-      window.location.href = '/';
-    } else {
-      throw new Error(data.error || 'Profile completion failed');
-    }
-  } catch (error) {
-    console.error('Profile completion error:', error);
-    alert(error.message || 'Profile completion failed - please try again');
-    submitBtn.textContent = 'Complete Profile';
-    submitBtn.disabled = false;
-  }
-});
+    // Wait for session to be established, then initialize
+    setTimeout(initSupabase, 500);
+    document.getElementById('profile-form').addEventListener('submit', handleSubmit);
 </script>
-
-</body></html>
+</body>
+</html>

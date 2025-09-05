@@ -6,7 +6,7 @@
 <title>Homie - Enter Invite Code</title>
 <link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script src="/web/js/supabase-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style type="text/tailwindcss">
         :root {
             --homie-orange: #FDAA25;
@@ -140,6 +140,20 @@ Don't have a code?
 </div>
 
 <script>
+let supabase;
+
+async function initializeSupabase() {
+  try {
+    const response = await fetch('/api/auth/config');
+    const config = await response.json();
+    supabase = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
+  } catch (error) {
+    console.error('Failed to initialize Supabase:', error);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', initializeSupabase);
+
 const inviteInput = document.getElementById('invite');
 const verifyBtn = document.getElementById('verify-btn');
 const hint = document.getElementById('invite-hint');
@@ -173,51 +187,60 @@ verifyBtn.addEventListener('click', async () => {
     }
     
     // Query Supabase for real invite codes
-    const invites = await supabase.query('invites', {
-      'code': `eq.${codeUpper}`
-    });
+    const { data: invites, error } = await supabase
+      .from('invites')
+      .select('*')
+      .eq('code', codeUpper)
+      .single();
     
-    if (invites.length === 0) {
+    if (error || !invites) {
       hint.textContent = 'invite code not found';
       hint.className = 'mt-2 text-xs text-red-400';
       return;
     }
     
-    const invite = invites[0];
-    
-    // Check if invite is active
-    if (!invite.is_active) {
-      hint.textContent = 'invite code is inactive';
-      hint.className = 'mt-2 text-xs text-red-400';
-      return;
-    }
-    
     // Check if invite has expired
-    if (invite.expires_at && new Date(invite.expires_at) < new Date()) {
+    if (invites.expires_at && new Date(invites.expires_at) < new Date()) {
       hint.textContent = 'invite code has expired';
       hint.className = 'mt-2 text-xs text-red-400';
       return;
     }
     
     // Check if invite has remaining uses
-    if (invite.used_count >= invite.max_uses) {
+    if (invites.used_count >= invites.max_uses) {
       hint.textContent = 'invite code has been fully used';
       hint.className = 'mt-2 text-xs text-red-400';
       return;
     }
     
+    // Check school restriction if present
+    if (invites.school_restriction) {
+      localStorage.setItem('homie_school_restriction', invites.school_restriction);
+    }
+    
     // Valid invite
-    const remaining = invite.max_uses - invite.used_count;
+    const remaining = invites.max_uses - invites.used_count;
     hint.textContent = `valid • ${remaining} use(s) left`;
     hint.className = 'mt-2 text-xs text-green-400';
     
+    // Update used count
+    const { error: updateError } = await supabase
+      .from('invites')
+      .update({ used_count: invites.used_count + 1 })
+      .eq('code', codeUpper);
+
+    if (updateError) {
+      console.error('Failed to update invite count:', updateError);
+    }
+
     // Store the verified code and redirect to login page
-    localStorage.setItem('verifiedInviteCode', code);
+    localStorage.setItem('homie_invite', code);
     setTimeout(() => {
       window.location.href = '/login.html';
     }, 1000);
-    
+    return;
   } catch (error) {
+    console.error('Verification error:', error);
     hint.textContent = 'verification failed - try again';
     hint.className = 'mt-2 text-xs text-red-400';
   }

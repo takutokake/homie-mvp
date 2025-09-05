@@ -34,6 +34,8 @@
             </div>
 
             <form id="profile-form" class="space-y-4">
+                <!-- Email (hidden) -->
+                <input type="hidden" id="email">
                 <!-- Display Name -->
                 <div>
                     <label for="displayName" class="block text-sm font-medium text-gray-700 mb-1">Display Name *</label>
@@ -129,6 +131,12 @@
                            placeholder="e.g., Italian, Korean, Mexican (comma-separated)">
                 </div>
 
+                <!-- SMS Consent -->
+                <div class="flex items-center">
+                    <input type="checkbox" id="sms_consent" name="sms_consent" class="mr-2 text-homie-orange">
+                    <label for="sms_consent" class="text-sm text-gray-700">I agree to receive SMS notifications</label>
+                </div>
+
                 <button type="submit" id="complete-btn" 
                         class="w-full bg-gradient-to-r from-homie-orange to-homie-violet text-white py-3 px-4 rounded-lg font-semibold hover:opacity-90 transition-opacity disabled:opacity-50">
                     Complete Profile
@@ -159,109 +167,306 @@
         
         async function initSupabase() {
             try {
+                // Get stored auth session
+                const storedAuth = localStorage.getItem('homie_auth');
+                if (!storedAuth) {
+                    throw new Error('No auth session found');
+                }
+                const { access_token, user_id } = JSON.parse(storedAuth);
+                
                 const response = await fetch('/api/auth/config');
                 const config = await response.json();
                 supabase = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
                 
-                // Check if user is authenticated
+                // Set the stored session
                 const { data: { session }, error } = await supabase.auth.getSession();
                 if (error || !session) {
-                    console.error('No session found');
-                    window.location.href = '/web/signup.html';
-                    return;
+                    // Try to set the session from stored token
+                    const { data: { session: newSession }, error: setSessionError } = await supabase.auth.setSession({
+                        access_token,
+                        refresh_token: null
+                    });
+                    if (setSessionError) {
+                        throw new Error('Failed to restore session');
+                    }
                 }
 
                 // Get user data
                 const { data: { user }, error: userError } = await supabase.auth.getUser();
-                if (userError || !user) {
-                    console.error('No user found');
-                    window.location.href = '/web/signup.html';
+                if (userError || !user || user.id !== user_id) {
+                    throw new Error('Invalid user session');
+                }
+
+                // Check if user has already completed their profile
+                const { data: userProfile, error: profileError } = await supabase
+                    .from('users')
+                    .select('profile_completed, display_name')
+                    .eq('id', user.id)
+                    .single();
+
+                if (userProfile && userProfile.profile_completed && userProfile.display_name) {
+                    console.log('Profile already completed, redirecting to success page');
+                    window.location.href = 'profile-success.html';
                     return;
+                }
+
+                // Pre-fill email if available
+                if (user.email) {
+                    document.getElementById('email').value = user.email;
                 }
             } catch (error) {
                 console.error('Failed to initialize Supabase:', error);
-                window.location.href = '/web/signup.html';
+                window.location.href = 'login.html';
             }
         }
         
-        initSupabase();
+        // Initialize Supabase and then the form
+        initSupabase().then(() => {
+            initializeForm().catch(console.error);
+        }).catch(error => {
+            console.error('Failed to initialize:', error);
+            window.location.href = 'login.html';
+        });
 
-        const completeBtn = document.getElementById('complete-btn');
+        // Initialize form after Supabase is ready
+        async function initializeForm() {
+            // Create error display element if it doesn't exist
+            const errorDisplay = document.getElementById('error-message') || (() => {
+                const div = document.createElement('div');
+                div.id = 'error-message';
+                div.className = 'text-red-500 text-sm mt-2';
+                document.getElementById('profile-form')?.appendChild(div);
+                return div;
+            })();
 
-        // Handle profile completion
-        document.getElementById('profile-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            // Collect meeting preferences
-            const meetingPreferences = Array.from(document.querySelectorAll('input[name="meetingPreference"]:checked'))
-                .map(cb => cb.value);
-            
-            // Parse interests and cuisine preferences
-            const interests = document.getElementById('interests').value
-                .split(',')
-                .map(item => item.trim())
-                .filter(item => item.length > 0);
-                
-            const cuisinePreferences = document.getElementById('cuisinePreferences').value
-                .split(',')
-                .map(item => item.trim())
-                .filter(item => item.length > 0);
-            
-            const payload = {
-                displayName: document.getElementById('displayName').value.trim(),
-                phoneNumber: document.getElementById('phoneNumber').value.trim() || null,
-                school: document.getElementById('school').value,
-                locationDetails: document.getElementById('locationDetails').value.trim() || null,
-                priceRange: document.getElementById('priceRange').value,
-                meetingPreference: meetingPreferences,
-                interests: interests,
-                cuisinePreferences: cuisinePreferences
-            };
-            
-            completeBtn.textContent = 'Completing Profile...';
-            completeBtn.disabled = true;
-            
-            try {
-                if (!supabase) {
-                    throw new Error('Authentication system not ready');
-                }
-                
-                const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-                if (sessionError || !session) {
-                    throw new Error('Authentication required');
-                }
+            // Verify all form elements exist
+            const formElements = [
+                'complete-btn',
+                'email',
+                'displayName',
+                'phoneNumber',
+                'school',
+                'locationDetails',
+                'priceRange',
+                'interests',
+                'cuisinePreferences',
+                'sms_consent'
+            ];
 
-                const { data: { user }, error: userError } = await supabase.auth.getUser();
-                if (userError || !user) {
-                    throw new Error('User data not found');
-                }
-                
-                const res = await fetch('/api/profile/complete-profile', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${session.access_token}`
-                    },
-                    body: JSON.stringify(payload)
+            const missingElements = formElements.filter(id => !document.getElementById(id));
+            if (missingElements.length > 0) {
+                const error = `Missing form elements: ${missingElements.join(', ')}`;
+                console.error(error);
+                errorDisplay.textContent = error;
+                return;
+            }
+
+            // Get and validate URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const hasUrlParams = urlParams.toString().length > 0;
+            
+            // Debug: Log all URL parameters
+            console.log('URL Parameters:', {
+                username: urlParams.get('username'),
+                display_name: urlParams.get('display_name'),
+                phone_number: urlParams.get('phone_number'),
+                school: urlParams.get('school'),
+                school_area: urlParams.get('school_area'),
+                price_range: urlParams.get('price_range'),
+                meeting_preference: urlParams.getAll('meeting_preference'),
+                interests: urlParams.get('interests'),
+                sms_consent: urlParams.get('sms_consent')
+            });
+
+            // Check if profile already exists
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                throw new Error('User not authenticated');
+            }
+
+            console.log('Profile page initialization:', {
+                userId: user.id,
+                userEmail: user.email,
+                hasUrlParams,
+                urlParams: Object.fromEntries(urlParams)
+            });
+            
+            // Fetch existing profile with proper UUID handling
+            const { data: profiles, error: profileError } = await supabase
+                .from('users')
+                .select('*')
+                .match({ id: user.id });
+
+            const existingProfile = profiles?.[0];
+
+            if (profileError && profileError.code !== 'PGRST116') {
+                console.error('Error fetching profile:', profileError);
+                throw new Error('Failed to check existing profile');
+            }
+
+            // Handle profile initialization
+            if (hasUrlParams) {
+                console.log('Initializing form from URL parameters');
+                // Initialize from URL parameters
+                // Pre-fill form with URL parameters, using decodeURIComponent for encoded values
+                const formData = {
+                    email: user.email, // Always use authenticated email
+                    displayName: urlParams.get('display_name'),
+                    phoneNumber: urlParams.get('phone_number'),
+                    school: urlParams.get('school'),
+                    locationDetails: urlParams.get('school_area'),
+                    priceRange: urlParams.get('price_range'),
+                    interests: urlParams.get('interests')
+                };
+
+                // Debug: Log form data before setting
+                console.log('Form data from URL:', formData);
+
+                // Set form values with proper decoding
+                Object.entries(formData).forEach(([id, value]) => {
+                    if (value) {
+                        try {
+                            document.getElementById(id).value = decodeURIComponent(value);
+                        } catch (e) {
+                            console.warn(`Error decoding ${id}:`, e);
+                            document.getElementById(id).value = value;
+                        }
+                    }
                 });
                 
-                const data = await res.json();
+                // Handle meeting preferences
+                const meetingPrefs = urlParams.getAll('meeting_preference') || [];
+                meetingPrefs.forEach(pref => {
+                    const checkbox = document.querySelector(`input[name="meetingPreference"][value="${pref}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+
+                // Handle SMS consent
+                document.getElementById('sms_consent').checked = urlParams.get('sms_consent') === 'on';
+            } else if (!profileError && existingProfile) {
+                // Pre-fill form fields from existing profile
+                console.log('Pre-filling form with existing profile:', existingProfile);
+                document.getElementById('email').value = existingProfile.email || user.email || '';
+                document.getElementById('displayName').value = existingProfile.display_name || '';
+                document.getElementById('phoneNumber').value = existingProfile.phone_number || '';
+                document.getElementById('school').value = existingProfile.school || '';
+                document.getElementById('locationDetails').value = existingProfile.location_details || '';
+                document.getElementById('priceRange').value = existingProfile.price_range || '';
+                document.getElementById('interests').value = (existingProfile.interests || []).join(', ');
+                document.getElementById('cuisinePreferences').value = (existingProfile.cuisine_preferences || []).join(', ');
+                document.getElementById('sms_consent').checked = existingProfile.sms_consent || false;
                 
-                if (res.ok) {
-                    alert('Profile completed successfully!');
-                    window.location.href = '/web/thank-you.html';
-                } else {
-                    alert(data.error || 'Profile completion failed');
-                    completeBtn.disabled = false;
-                    completeBtn.textContent = 'Complete Profile';
-                }
-            } catch (error) {
-                console.error('Profile completion error:', error);
-                alert(error.message || 'Network error - please try again');
-                completeBtn.disabled = false;
-                completeBtn.textContent = 'Complete Profile';
+                // Set meeting preferences
+                (existingProfile.meeting_preference || []).forEach(pref => {
+                    const checkbox = document.querySelector(`input[name="meetingPreference"][value="${pref}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+            } else {
+                // No existing profile and no URL params, initialize with user email
+                console.log('Initializing new profile with user email:', user.email);
+                document.getElementById('email').value = user.email || '';
             }
-        });
+                // Handle profile completion
+            const profileForm = document.getElementById('profile-form');
+            if (!profileForm) {
+                console.error('Profile form not found');
+                return;
+            }
+
+            profileForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const completeBtn = document.getElementById('complete-btn');
+                if (!completeBtn) {
+                    console.error('Complete button not found');
+                    return;
+                }
+
+                // Create or get error display
+                let errorDisplay = document.getElementById('error-message');
+                if (!errorDisplay) {
+                    errorDisplay = document.createElement('div');
+                    errorDisplay.id = 'error-message';
+                    errorDisplay.className = 'text-red-500 text-sm mt-2';
+                    profileForm.appendChild(errorDisplay);
+                }
+
+                completeBtn.textContent = 'Completing Profile...';
+                completeBtn.disabled = true;
+                errorDisplay.textContent = '';
+
+                try {
+                    const { data: { user }, error: userError } = await supabase.auth.getUser();
+                    if (userError || !user) {
+                        throw new Error('User not authenticated');
+                    }
+
+                    // Safe form value getters
+                    const getFormValue = (id) => {
+                        const element = document.getElementById(id);
+                        return element ? element.value.trim() : '';
+                    };
+
+                    const getMeetingPreferences = () => {
+                        const preferences = [];
+                        const checkboxes = document.querySelectorAll('input[name="meetingPreference"]:checked');
+                        checkboxes.forEach(checkbox => preferences.push(checkbox.value));
+                        return preferences;
+                    };
+
+                    // Collect form data
+                    const displayName = getFormValue('displayName');
+                    const school = getFormValue('school');
+                    const priceRange = getFormValue('priceRange');
+                    const meetingPrefs = getMeetingPreferences();
+
+                    // Validate required fields
+                    if (!displayName) throw new Error('Display Name is required');
+                    if (!school) throw new Error('School is required');
+                    if (!priceRange) throw new Error('Price Range is required');
+                    if (meetingPrefs.length === 0) throw new Error('Please select at least one meeting preference');
+
+                    // Prepare data for Supabase
+                    const profileData = {
+                        id: user.id,
+                        email: user.email,
+                        display_name: displayName,
+                        phone_number: getFormValue('phoneNumber'),
+                        school: school,
+                        location_details: getFormValue('locationDetails'),
+                        price_range: priceRange,
+                        interests: getFormValue('interests').split(',').map(i => i.trim()).filter(Boolean),
+                        cuisine_preferences: getFormValue('cuisinePreferences').split(',').map(i => i.trim()).filter(Boolean),
+                        meeting_preference: meetingPrefs,
+                        profile_completed: true,
+                        updated_at: new Date().toISOString()
+                    };
+
+                    console.log('Submitting profile data:', profileData);
+
+                    // Update profile in Supabase
+                    const { data: updateData, error: updateError } = await supabase
+                        .from('users')
+                        .upsert(profileData)
+                        .select()
+                        .single();
+
+                    if (updateError) {
+                        console.error('Profile update error:', updateError);
+                        throw new Error(`Failed to save profile: ${updateError.message}`);
+                    }
+
+                    console.log('Profile saved successfully:', updateData);
+                    window.location.href = '/web/profile-success.html';
+
+                } catch (error) {
+                    console.error('Error saving profile:', error);
+                    errorDisplay.textContent = error.message || 'Failed to save profile';
+                    completeBtn.textContent = 'Complete Profile';
+                    completeBtn.disabled = false;
+                }
+            });
+        }
     </script>
 </body>
 </html>

@@ -11,35 +11,36 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  username     String   @unique
-  passwordHash String?  // null if Google-only
-  googleId     String?  @unique
+  id                 String   @id @default(cuid())
+  email              String   @unique
+  username           String   @unique
+  password_hash      String?  // null if Google-only
+  google_id          String?  @unique
   
   // Profile Information
-  displayName        String
-  phoneNumber        String?
-  profilePictureUrl  String?
+  display_name       String
+  phone_number       String?
+  profile_picture_url String?
   
   // Location & School
-  school            String?  // USC or UCLA (required after profile completion)
-  locationDetails   String?
+  school             String?  // USC or UCLA (required after profile completion)
+  location_details   String?
   
   // Preferences
-  priceRange          String?  // $, $$, $$$, $$$$ (required after profile completion)
-  meetingPreference   String[] @default([])
-  interests           String[] @default([])
-  cuisinePreferences  String[] @default([])
+  price_range        String?  // $, $$, $$$, $$$$ (required after profile completion)
+  meeting_preference String[] @default([])
+  interests          String[] @default([])
+  cuisine_preferences String[] @default([])
   
   // Profile Status
-  profileCompleted Boolean @default(false)
-  isActive         Boolean @default(true)
+  profile_completed  Boolean @default(false)
+  is_active          Boolean @default(true)
+  sms_consent        Boolean @default(false)
   
   // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  lastLogin DateTime?
+  created_at         DateTime @default(now())
+  updated_at         DateTime @updatedAt
+  last_login         DateTime?
 
   sessions Session[]
   createdMeetups Meetup[] @relation("MeetupCreator")

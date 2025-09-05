@@ -244,13 +244,18 @@
 </div>
 
 <script>
-// Initialize Supabase with your credentials
+// Initialize Supabase directly with credentials
 const supabase = window.supabase.createClient(
   'https://cfmegjvcnsbuyiwvmzft.supabase.co',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmbWVnanZjbnNidXlpd3ZtemZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY4NzgzNDUsImV4cCI6MjA3MjQ1NDM0NX0.8d2PW5KY1vP2AsYHWUxmHYZydvl5hToanYX8YQV8QgM'
 );
 
 console.log('Supabase initialized');
+
+// Wait for DOM to load then set up event listeners
+document.addEventListener('DOMContentLoaded', function() {
+  setupEventListeners();
+});
 
 // Tab switching functionality
 const signinTab = document.getElementById('signin-tab');
@@ -276,68 +281,83 @@ function showSignUp() {
   signinForm.classList.add('hidden');
 }
 
-// Event listeners for tabs
-signinTab.addEventListener('click', showSignIn);
-signupTab.addEventListener('click', showSignUp);
-document.getElementById('switch-to-signin').addEventListener('click', showSignIn);
-document.getElementById('switch-to-signup').addEventListener('click', showSignIn);
+// Set up all event listeners after Supabase is initialized
+function setupEventListeners() {
+  // Event listeners for tabs
+  signinTab.addEventListener('click', showSignIn);
+  signupTab.addEventListener('click', showSignUp);
+  document.getElementById('switch-to-signin').addEventListener('click', showSignIn);
+  document.getElementById('switch-to-signup').addEventListener('click', showSignUp);
 
-// Email/Password Sign Up
-document.getElementById('signup-btn').addEventListener('click', async () => {
+  // Email/Password Sign Up
+  document.getElementById('signup-btn').addEventListener('click', async (e) => {
+  e.preventDefault();
   const email = document.getElementById('signup-email').value.trim();
   const password = document.getElementById('signup-password').value;
-  
+  // Create error display if it doesn't exist
+  let errorDisplay = document.querySelector('.error-message');
+  if (!errorDisplay) {
+    errorDisplay = document.createElement('div');
+    errorDisplay.className = 'error-message text-red-500 text-sm mt-2';
+    document.getElementById('signup-btn').parentNode.insertBefore(errorDisplay, document.getElementById('signup-btn'));
+  }
+
   if (!email || !password) {
-    alert('Please enter both email and password');
+    errorDisplay.textContent = 'Please fill in all fields';
     return;
   }
-  
+
   if (password.length < 6) {
-    alert('Password must be at least 6 characters');
+    errorDisplay.textContent = 'Password must be at least 6 characters';
     return;
   }
   
   const btn = document.getElementById('signup-btn');
   btn.textContent = 'Creating Account...';
   btn.disabled = true;
+  errorDisplay.textContent = '';
   
   try {
-    // Check if email already exists
-    const { data: existingUser } = await supabase.auth.signInWithPassword({
-      email,
-      password: 'dummy-password-for-check'
-    });
-    
-    if (existingUser?.user) {
-      throw new Error('An account with this email already exists. Please sign in instead.');
-    }
-    
-    // Proceed with signup if email doesn't exist
     const { data, error } = await supabase.auth.signUp({
       email,
       password
     });
-    
+
     if (error) {
       throw new Error(error.message);
     }
-    
-    console.log('User created:', data.user);
-    // Store auth session for complete-profile page
-    localStorage.setItem('homie_auth', JSON.stringify({
-      access_token: data.session?.access_token,
-      user_id: data.user?.id
-    }));
-    
-    // Redirect to complete profile page
-    window.location.href = '/web/complete-profile.html';
-    
+
+    console.log('Signup response:', data);
+
+    // Check if we have a session immediately after signup
+    if (data.session) {
+      console.log('Session available immediately after signup');
+      
+      // Create user profile in database
+      await supabase.from('users').insert([{
+        id: data.user.id,
+        email: data.user.email,
+        username: data.user.email.split('@')[0],
+        display_name: '',
+        phone_number: '',
+        profile_completed: false,
+        created_at: new Date().toISOString(),
+        last_login: new Date().toISOString()
+      }]);
+
+      console.log('User created:', data.user);
+      console.log('=== SIGNUP SUCCESS - REDIRECTING TO PROFILE ===');
+      window.location.href = 'profile.html';
+    } else {
+      console.log('No session after signup, user needs to confirm email');
+      errorDisplay.textContent = 'Please check your email to confirm your account, then sign in.';
+    }
   } catch (error) {
-    console.error('Sign up error:', error);
-    alert(error.message || 'Sign up failed - please try again');
+    console.error('Error:', error);
+    errorDisplay.textContent = error.message;
   } finally {
-    btn.textContent = 'Sign Up';
     btn.disabled = false;
+    btn.textContent = 'Sign Up';
   }
 });
 
@@ -366,15 +386,26 @@ document.getElementById('signin-btn').addEventListener('click', async () => {
     }
     
     console.log('User signed in:', data.user);
-    alert('Successfully signed in!');
-    window.location.href = '/';
+    
+    // Check if profile is completed
+    const { data: userProfile } = await supabase
+      .from('users')
+      .select('profile_completed')
+      .eq('id', data.user.id)
+      .single();
+    
+    if (userProfile && userProfile.profile_completed) {
+      window.location.href = 'dashboard.html';
+    } else {
+      window.location.href = 'profile.html';
+    }
     
   } catch (error) {
     console.error('Sign in error:', error);
-    alert(error.message || 'Sign in failed - please try again');
+    alert('Sign in failed - ' + error.message);
   } finally {
-    btn.textContent = 'Sign In';
     btn.disabled = false;
+    btn.textContent = 'Sign In';
   }
 });
 
@@ -384,7 +415,7 @@ document.getElementById('google-signup-btn').addEventListener('click', async () 
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.origin + '/login.html'
+        redirectTo: window.location.origin + '/web/profile.html'
       }
     });
     
@@ -404,7 +435,7 @@ document.getElementById('google-signin-btn').addEventListener('click', async () 
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.origin + '/login.html'
+        redirectTo: window.location.origin + '/web/profile.html'
       }
     });
     
@@ -416,30 +447,105 @@ document.getElementById('google-signin-btn').addEventListener('click', async () 
     console.error('Google sign in error:', error);
     alert('Google sign in failed - please try again');
   }
-});
+  });
+} // Close setupEventListeners function
 
-// Check if user is already logged in
-supabase.auth.onAuthStateChange(async (event, session) => {
-  console.log('Auth state changed:', event, session);
-  
-  if (event === 'SIGNED_IN' && session) {
-    console.log('User is signed in:', session.user);
-    // Check if profile is completed
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('profile_completed')
-      .eq('id', session.user.id)
-      .single();
-    
-    if (profileError || !profile || !profile.profile_completed) {
-      // Profile not completed, redirect to complete-profile
-      window.location.href = '/web/complete-profile.html';
-    } else {
-      // Profile completed, redirect to home
-      window.location.href = '/';
+  // Google OAuth Sign Up
+  document.getElementById('google-signup-btn').addEventListener('click', async () => {
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin + '/web/profile.html'
+        }
+      });
+      
+      if (error) {
+        throw new Error(error.message);
+      }
+      
+    } catch (error) {
+      console.error('Google sign up error:', error);
+      alert('Google sign up failed - please try again');
     }
+  });
+
+  // Google OAuth Sign In
+  document.getElementById('google-signin-btn').addEventListener('click', async () => {
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin + '/web/profile.html'
+        }
+      });
+      
+      if (error) {
+        throw new Error(error.message);
+      }
+      
+    } catch (error) {
+      console.error('Google sign in error:', error);
+      alert('Google sign in failed - please try again');
+    }
+  });
+
+  // Check for invite code in URL or localStorage
+  const urlParams = new URLSearchParams(window.location.search);
+  const inviteCode = urlParams.get('invite') || localStorage.getItem('homie_invite');
+  if (inviteCode) {
+    localStorage.setItem('homie_invite', inviteCode);
   }
-});
+
+  // Listen for auth state changes - only handle signup events on login page
+  supabase.auth.onAuthStateChange(async (event, session) => {
+    console.log('=== LOGIN PAGE AUTH STATE CHANGE ===');
+    console.log('Event:', event);
+    console.log('Has session:', !!session);
+    console.log('Session user ID:', session?.user?.id);
+    
+    // Handle both SIGNED_UP and SIGNED_IN events
+    if ((event === 'SIGNED_UP' || event === 'SIGNED_IN') && session) {
+      try {
+        console.log('=== AUTH STATE: ' + event + ' - CHECKING PROFILE STATUS ===');
+        
+        // Check if user has completed their profile
+        const { data: userProfile, error: profileError } = await supabase
+          .from('users')
+          .select('profile_completed, display_name')
+          .eq('id', session.user.id)
+          .single();
+        
+        console.log('Profile check result:', { userProfile, profileError });
+        
+        if (profileError && profileError.code !== 'PGRST116') {
+          console.error('Error checking profile:', profileError);
+          window.location.href = 'profile.html';
+          return;
+        }
+        
+        // If profile is completed, redirect to success page
+        if (userProfile && userProfile.profile_completed && userProfile.display_name) {
+          console.log('Profile already completed, redirecting to success page');
+          window.location.href = 'profile-success.html';
+        } else {
+          console.log('Profile not completed, redirecting to profile creation');
+          window.location.href = 'profile.html';
+        }
+      } catch (error) {
+        console.error('Error handling auth:', error);
+        window.location.href = 'profile.html';
+      }
+    } else {
+      console.log('Ignoring auth state change:', event);
+    }
+  });
+
+// Also set up basic tab functionality immediately
+signinTab.addEventListener('click', showSignIn);
+signupTab.addEventListener('click', showSignUp);
+document.getElementById('switch-to-signin').addEventListener('click', showSignIn);
+document.getElementById('switch-to-signup').addEventListener('click', showSignUp);
 </script>
 
 </body></html>
