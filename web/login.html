@@ -347,7 +347,7 @@ function setupEventListeners() {
 
       console.log('User created:', data.user);
       console.log('=== SIGNUP SUCCESS - REDIRECTING TO PROFILE ===');
-      window.location.href = 'profile.html';
+      window.location.replace('profile.html');
     } else {
       console.log('No session after signup, user needs to confirm email');
       errorDisplay.textContent = 'Please check your email to confirm your account, then sign in.';
@@ -395,11 +395,12 @@ document.getElementById('signin-btn').addEventListener('click', async () => {
       .single();
     
     if (userProfile && userProfile.profile_completed) {
-      window.location.href = 'dashboard.html';
+      console.log('User has completed profile, redirecting to thank-you page');
+      window.location.replace('thank-you.html');
     } else {
-      window.location.href = 'profile.html';
+      console.log('User needs to complete profile');
+      window.location.replace('profile.html');
     }
-    
   } catch (error) {
     console.error('Sign in error:', error);
     alert('Sign in failed - ' + error.message);
@@ -497,49 +498,19 @@ document.getElementById('google-signin-btn').addEventListener('click', async () 
     localStorage.setItem('homie_invite', inviteCode);
   }
 
-  // Listen for auth state changes - only handle signup events on login page
-  supabase.auth.onAuthStateChange(async (event, session) => {
-    console.log('=== LOGIN PAGE AUTH STATE CHANGE ===');
-    console.log('Event:', event);
-    console.log('Has session:', !!session);
-    console.log('Session user ID:', session?.user?.id);
-    
-    // Handle both SIGNED_UP and SIGNED_IN events
-    if ((event === 'SIGNED_UP' || event === 'SIGNED_IN') && session) {
-      try {
-        console.log('=== AUTH STATE: ' + event + ' - CHECKING PROFILE STATUS ===');
-        
-        // Check if user has completed their profile
-        const { data: userProfile, error: profileError } = await supabase
-          .from('users')
-          .select('profile_completed, display_name')
-          .eq('id', session.user.id)
-          .single();
-        
-        console.log('Profile check result:', { userProfile, profileError });
-        
-        if (profileError && profileError.code !== 'PGRST116') {
-          console.error('Error checking profile:', profileError);
-          window.location.href = 'profile.html';
-          return;
-        }
-        
-        // If profile is completed, redirect to success page
-        if (userProfile && userProfile.profile_completed && userProfile.display_name) {
-          console.log('Profile already completed, redirecting to success page');
-          window.location.href = 'profile-success.html';
-        } else {
-          console.log('Profile not completed, redirecting to profile creation');
-          window.location.href = 'profile.html';
-        }
-      } catch (error) {
-        console.error('Error handling auth:', error);
-        window.location.href = 'profile.html';
-      }
-    } else {
-      console.log('Ignoring auth state change:', event);
-    }
-  });
+  // Disable auto-signin for now
+  // supabase.auth.onAuthStateChange(async (event, session) => {
+  //   console.log('Auth event:', event, session?.user?.id);
+  //   
+  //   // Only handle sign in events, ignore others
+  //   if (event === 'SIGNED_IN' && session) {
+  //     console.log('User signed in, redirecting to profile...');
+  //     // Simple redirect - no complex checks
+  //     setTimeout(() => {
+  //       window.location.replace('profile.html');
+  //     }, 100);
+  //   }
+  // });
 
 // Also set up basic tab functionality immediately
 signinTab.addEventListener('click', showSignIn);

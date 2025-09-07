@@ -443,37 +443,57 @@
                 price_range: getFormValue('price_range'),
                 meeting_preference: getCheckedValues('meeting_preference'),
                 interests: getFormValue('interests').split(',').map(i => i.trim()).filter(i => i),
-                cuisine_preferences: getFormValue('hangout_types').split(',').map(i => i.trim()).filter(i => i),
+                cuisine_preferences: getFormValue('hangoutTypes').split(',').map(i => i.trim()).filter(i => i),
                 profile_completed: true,
                 updated_at: new Date().toISOString()
             };
 
             console.log('Submitting profile data:', formData);
 
-            const { error: updateError } = await supabase
+            // Update user profile
+            const { data: updateData, error: updateError } = await supabase
                 .from('users')
                 .upsert(formData)
                 .select()
                 .single();
 
             if (updateError) throw updateError;
+            console.log('Profile saved successfully:', updateData);
 
-            // Generate invite code for new user
-            const inviteCode = 'HOMIE' + Math.random().toString(36).substring(2, 8).toUpperCase();
-            const { error: inviteError } = await supabase
-                .from('invites')
-                .insert([{
-                    code: inviteCode,
-                    created_by: session.user.id,
-                    max_uses: 5,
-                    school_restriction: formData.school,
-                    is_active: true
-                }]);
+            // Skip old invite code generation - we use referral_chain now
+            console.log('Skipping old invite code generation - using referral_chain system');
 
-            if (inviteError) throw inviteError;
-
-            // Store invite code and school for success page
-            localStorage.setItem('homie_invite', inviteCode);
+            // Generate referral code for the new user
+            try {
+                console.log('Generating referral code for user:', session.user.id);
+                const referredByCode = localStorage.getItem('homie_invite');
+                const { data: referralCode, error: referralError } = await supabase
+                    .rpc('generate_user_referral_code', {
+                        p_user_id: session.user.id,
+                        p_referred_by_code: referredByCode
+                    });
+                
+                if (referralError) {
+                    console.error('Error generating referral code:', referralError);
+                    throw referralError;
+                }
+                
+                console.log('Generated referral code:', referralCode);
+                localStorage.setItem('homie_generated_invite', referralCode);
+                
+            } catch (error) {
+                console.error('Failed to generate referral code:', error);
+                // Generate fallback 6-character code
+                const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+                let fallbackCode = '';
+                for (let i = 0; i < 6; i++) {
+                    fallbackCode += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                console.log('Using fallback code:', fallbackCode);
+                localStorage.setItem('homie_generated_invite', fallbackCode);
+            }
+            
+            // Store school for success page
             localStorage.setItem('homie_school', formData.school);
 
             // Redirect to success page

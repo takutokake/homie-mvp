@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html><head>
+<html>
+<head>
 <meta charset="utf-8"/>
 <link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
 <link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Inter%3Awght%40400%3B500%3B700%3B900&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900" onload="this.rel='stylesheet'" rel="stylesheet"/>
@@ -58,48 +59,11 @@
                 linear-gradient(to bottom, rgba(253, 170, 37, 0.1) 1px, transparent 1px);
             background-size: 40px 40px;
         }
-        @keyframes pulse-dots {
-            0%, 100% {
-                opacity: 0.2;
-                transform: scale(0.8);
-            }
-            50% {
-                opacity: 0.6;
-                transform: scale(1.2);
-            }
-        }
-        .glowing-dot {
-            width: 4px;
-            height: 4px;
-            background-color: #FDAA25;
-            border-radius: 50%;
-            box-shadow: 0 0 8px #FDAA25, 0 0 12px #FDAA25;
-            animation: pulse-dots 4s infinite ease-in-out;
-        }
-        .glowing-dot:nth-child(1) { animation-delay: 0s; }
-        .glowing-dot:nth-child(2) { animation-delay: 1s; }
-        .glowing-dot:nth-child(3) { animation-delay: 2s; }
-        .glowing-dot:nth-child(4) { animation-delay: 3s; }
-        .glowing-dot:nth-child(5) { animation-delay: 0.5s; }
-        .glowing-dot:nth-child(6) { animation-delay: 1.5s; }
-        .glowing-dot:nth-child(7) { animation-delay: 2.5s; }
-        .glowing-dot:nth-child(8) { animation-delay: 3.5s; }
-    </style>
+</style>
 </head>
 <body class="bg-[#1C160C]">
 <div class="relative flex size-full min-h-screen flex-col bg-[#1C160C] dark group/design-root overflow-hidden" style='font-family: Inter, "Noto Sans", sans-serif;'>
 <div class="absolute inset-0 z-0 bg-grid opacity-50"></div>
-<div class="absolute inset-0 z-0">
-<div class="glowing-dot absolute top-[10%] left-[20%]"></div>
-<div class="glowing-dot absolute top-[20%] left-[80%]"></div>
-<div class="glowing-dot absolute top-[50%] left-[50%]"></div>
-<div class="glowing-dot absolute top-[80%] left-[10%]"></div>
-<div class="glowing-dot absolute top-[90%] left-[90%]"></div>
-<div class="glowing-dot absolute top-[30%] left-[5%]"></div>
-<div class="glowing-dot absolute top-[60%] left-[95%]"></div>
-<div class="glowing-dot absolute top-[5%] left-[60%]"></div>
-</div>
-<div class="relative z-10 layout-container flex h-full grow flex-col">
 <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#4A3C21] px-10 py-3">
 <div class="flex items-center gap-4 text-white">
 <img src="assets/images/homie-logo.png" alt="Homie Logo" class="h-10 w-10"/>
@@ -137,7 +101,6 @@ Don't have a code?
 </div>
 </main>
 </div>
-</div>
 
 <script>
 // Initialize Supabase directly with credentials
@@ -160,7 +123,6 @@ verifyBtn.addEventListener('click', async () => {
   if (!/^[A-Z0-9]{6}$/.test(code)) { 
     hint.textContent = 'invalid format'; 
     hint.className = 'mt-2 text-xs text-red-400';
-    resetButton();
     return; 
   }
   
@@ -175,42 +137,53 @@ verifyBtn.addEventListener('click', async () => {
     if (testCodes.includes(codeUpper)) {
       hint.textContent = `valid • 999 use(s) left`;
       hint.className = 'mt-2 text-xs text-green-400';
-      localStorage.setItem('homie_invite', code);
+      
+      // Store the verified code and redirect to login page
+      localStorage.setItem('verifiedInviteCode', code);
       setTimeout(() => {
         window.location.href = '/login.html';
       }, 1000);
       return;
     }
-
-    // Check referral_codes table for P0 codes
+    
+    // Check referral_codes table for valid codes
+    console.log('Checking referral code:', codeUpper);
     const { data: referralCode, error: referralError } = await supabase
       .from('referral_codes')
       .select('code, max_uses, used_count, is_active')
       .eq('code', codeUpper)
       .eq('is_active', true)
       .single();
-
+    
+    console.log('Referral code result:', { referralCode, referralError });
+    
     if (referralCode && !referralError) {
+      // Check if code has remaining uses
       if (referralCode.used_count >= referralCode.max_uses) {
-        hint.textContent = 'code has been fully used';
+        hint.textContent = 'referral code has been fully used';
         hint.className = 'mt-2 text-xs text-red-400';
         resetButton();
         return;
       }
-
+      
+      // Valid referral code
       const remaining = referralCode.max_uses - referralCode.used_count;
       hint.textContent = `valid • ${remaining} use(s) left`;
       hint.className = 'mt-2 text-xs text-green-400';
+      
+      // Store the verified code and redirect to login page
       localStorage.setItem('homie_invite', code);
       setTimeout(() => {
         window.location.href = '/login.html';
       }, 1000);
       return;
     }
-
-    hint.textContent = 'invalid code';
+    
+    // Code not found
+    hint.textContent = 'invite code not found';
     hint.className = 'mt-2 text-xs text-red-400';
     resetButton();
+    
   } catch (error) {
     console.error('Verification error:', error);
     hint.textContent = 'verification failed - try again';
