@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homie Referral Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-[#FDAA25] mb-2">Homie Referral Dashboard</h1>
+            <p class="text-gray-400">Track your referral network and connections</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-gray-800 p-6 rounded-lg">
+                <h3 class="text-lg font-semibold mb-2">Total Users</h3>
+                <p class="text-3xl font-bold text-[#FDAA25]" id="totalUsers">-</p>
+            </div>
+            <div class="bg-gray-800 p-6 rounded-lg">
+                <h3 class="text-lg font-semibold mb-2">Total Referrals</h3>
+                <p class="text-3xl font-bold text-green-400" id="totalReferrals">-</p>
+            </div>
+            <div class="bg-gray-800 p-6 rounded-lg">
+                <h3 class="text-lg font-semibold mb-2">P0 Codes Used</h3>
+                <p class="text-3xl font-bold text-blue-400" id="p0CodesUsed">-</p>
+            </div>
+            <div class="bg-gray-800 p-6 rounded-lg">
+                <h3 class="text-lg font-semibold mb-2">User Codes Used</h3>
+                <p class="text-3xl font-bold text-purple-400" id="userCodesUsed">-</p>
+            </div>
+        </div>
+
+        <!-- Tables -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Recent Connections -->
+            <div class="bg-gray-800 p-6 rounded-lg">
+                <h3 class="text-lg font-semibold mb-4">Recent Connections</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-gray-700">
+                                <th class="text-left py-2">New User</th>
+                                <th class="text-left py-2">Code Used</th>
+                                <th class="text-left py-2">Type</th>
+                                <th class="text-left py-2">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentConnections">
+                            <tr><td colspan="4" class="text-center py-4 text-gray-400">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Top Referrers -->
+            <div class="bg-gray-800 p-6 rounded-lg">
+                <h3 class="text-lg font-semibold mb-4">Top Referrers</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-gray-700">
+                                <th class="text-left py-2">User</th>
+                                <th class="text-left py-2">Code</th>
+                                <th class="text-left py-2">Referrals</th>
+                                <th class="text-left py-2">Created</th>
+                            </tr>
+                        </thead>
+                        <tbody id="topReferrers">
+                            <tr><td colspan="4" class="text-center py-4 text-gray-400">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Referral Chains -->
+        <div class="mt-8 bg-gray-800 p-6 rounded-lg">
+            <h3 class="text-lg font-semibold mb-4">Referral Chains</h3>
+            <div id="referralChains" class="space-y-2">
+                <p class="text-gray-400">Loading referral chains...</p>
+            </div>
+        </div>
+
+        <!-- Refresh Button -->
+        <div class="mt-8 text-center">
+            <button onclick="loadDashboard()" class="bg-[#FDAA25] text-black px-6 py-2 rounded-lg font-semibold hover:bg-orange-400 transition-colors">
+                Refresh Data
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Supabase with correct credentials
+        const supabaseClient = supabase.createClient(
+            'https://cfmegjvcnsbuyiwvmzft.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmbWVnanZjbnNidXlpd3ZtemZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY4NzgzNDUsImV4cCI6MjA3MjQ1NDM0NX0.8d2PW5KY1vP2AsYHWUxmHYZydvl5hToanYX8YQV8QgM'
+        );
+        console.log('Supabase initialized:', supabaseClient);
+
+        async function loadStats() {
+            try {
+                console.log('Loading stats...');
+                const { data: stats, error } = await supabaseClient.rpc('get_referral_stats');
+                if (error) throw error;
+                console.log('Stats:', stats);
+
+                document.getElementById('totalUsers').textContent = stats?.length || 0;
+                
+                const { data: connections } = await supabaseClient.rpc('get_referral_connections');
+                const totalReferrals = connections?.length || 0;
+                const p0Codes = connections?.filter(r => r.code_type === 'P0_CODE')?.length || 0;
+                const userCodes = connections?.filter(r => r.code_type === 'USER_CODE')?.length || 0;
+                
+                document.getElementById('totalReferrals').textContent = totalReferrals;
+                document.getElementById('p0CodesUsed').textContent = p0Codes;
+                document.getElementById('userCodesUsed').textContent = userCodes;
+            } catch (error) {
+                console.error('Error loading stats:', error);
+                document.getElementById('totalUsers').textContent = 'Error';
+                document.getElementById('totalReferrals').textContent = 'Error';
+                document.getElementById('p0CodesUsed').textContent = 'Error';
+                document.getElementById('userCodesUsed').textContent = 'Error';
+            }
+        }
+
+        async function loadRecentConnections() {
+            try {
+                const { data: connections, error } = await supabaseClient.rpc('get_referral_connections');
+                if (error) throw error;
+                console.log('Connections:', connections);
+
+                const tbody = document.getElementById('recentConnections');
+                if (!connections || connections.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-400">No connections found</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = connections.slice(0, 10).map(conn => `
+                    <tr class="border-b border-gray-700">
+                        <td class="py-2">${conn.new_user_email || 'Unknown'}</td>
+                        <td class="py-2">${conn.code_used}</td>
+                        <td class="py-2">${conn.code_type}</td>
+                        <td class="py-2">${new Date(conn.signup_date).toLocaleDateString()}</td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading connections:', error);
+                document.getElementById('recentConnections').innerHTML = 
+                    '<tr><td colspan="4" class="text-center py-4 text-red-400">Error loading connections</td></tr>';
+            }
+        }
+
+        async function loadTopReferrers() {
+            try {
+                const { data: referrers, error } = await supabaseClient.rpc('get_top_referrers');
+                if (error) throw error;
+                console.log('Top referrers:', referrers);
+
+                const tbody = document.getElementById('topReferrers');
+                if (!referrers || referrers.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-400">No referrers found</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = referrers.slice(0, 10).map(ref => `
+                    <tr class="border-b border-gray-700">
+                        <td class="py-2">${ref.email || 'Unknown'}</td>
+                        <td class="py-2">${ref.referral_code}</td>
+                        <td class="py-2">${ref.people_referred}</td>
+                        <td class="py-2">${new Date(ref.created_at).toLocaleDateString()}</td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading top referrers:', error);
+                document.getElementById('topReferrers').innerHTML = 
+                    '<tr><td colspan="4" class="text-center py-4 text-red-400">Error loading referrers</td></tr>';
+            }
+        }
+
+        async function loadReferralChains() {
+            try {
+                const { data: chains, error } = await supabaseClient.rpc('get_referral_chains');
+                if (error) throw error;
+                console.log('Chains:', chains);
+
+                const container = document.getElementById('referralChains');
+                if (!chains || chains.length === 0) {
+                    container.innerHTML = '<p class="text-gray-400">No referral chains found</p>';
+                    return;
+                }
+
+                container.innerHTML = chains.map(chain => `
+                    <div class="bg-gray-700 p-3 rounded">
+                        <div class="text-sm text-gray-300">Level ${chain.chain_level} - ${chain.email}</div>
+                        <div class="font-mono text-[#FDAA25]">${chain.referral_chain}</div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading chains:', error);
+                document.getElementById('referralChains').innerHTML = 
+                    '<p class="text-red-400">Error loading referral chains</p>';
+            }
+        }
+
+        async function loadDashboard() {
+            try {
+                console.log('Loading dashboard...');
+                await loadStats();
+                await loadRecentConnections();
+                await loadTopReferrers();
+                await loadReferralChains();
+                console.log('Dashboard loaded successfully');
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+                alert('Error loading dashboard data. Check console for details.');
+            }
+        }
+
+        // Load dashboard on page load
+        window.addEventListener('load', loadDashboard);
+    </script>
+</body>
+</html>
